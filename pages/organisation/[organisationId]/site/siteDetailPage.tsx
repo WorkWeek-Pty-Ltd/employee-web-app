@@ -6,7 +6,7 @@ import Fuse from "fuse.js";
 
 const SiteDetailPage = () => {
   const router = useRouter();
-  const { organisationId, siteId } = router.query; // Corrected to include organisationId in the URL parameters
+  const { organisationId, siteId } = router.query;
   const [employees, setEmployees] = useState([]);
   const [displayedEmployees, setDisplayedEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,6 +34,7 @@ const SiteDetailPage = () => {
           err.response ? err.response.data : err
         );
         setError("Failed to fetch data. Please try again later.");
+        console.error("Error details:", err);
       });
   }, [organisationId, siteId, mode]);
 
