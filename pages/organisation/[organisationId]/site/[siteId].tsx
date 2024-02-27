@@ -4,6 +4,7 @@ import Layout from "../../../../components/Layout";
 import axios from "axios";
 import Fuse from "fuse.js";
 import ClockModal from "../../../../components/ClockModal";
+import Link from "next/link";
 
 const SiteDetailPage = () => {
   const router = useRouter();
@@ -59,28 +60,40 @@ const SiteDetailPage = () => {
     setIsModalOpen(false);
   };
 
-  const handleClock = async (data: { latitude: number; longitude: number; accuracy: number; image: string; }) => {
+  const handleClock = async (data: {
+    latitude: number;
+    longitude: number;
+    accuracy: number;
+    image: string;
+  }) => {
     if (!selectedEmployee) {
       console.error("No employee selected for clocking.");
       return;
     }
     try {
-      const endpoint = mode === "clockIn" ? "clockInEmployee" : "clockOutEmployee";
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`, {
-        siteId,
-        employeeId: selectedEmployee,
-        timestamptz: new Date().toISOString(),
-        latitude: data.latitude,
-        longitude: data.longitude,
-        accuracy: data.accuracy,
-        base64Image: data.image,
-        mimeType: "image/png", // Assuming PNG format for the captured image
-      });
+      const endpoint =
+        mode === "clockIn" ? "clockInEmployee" : "clockOutEmployee";
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`,
+        {
+          siteId,
+          employeeId: selectedEmployee,
+          timestamptz: new Date().toISOString(),
+          latitude: data.latitude,
+          longitude: data.longitude,
+          accuracy: data.accuracy,
+          base64Image: data.image,
+          mimeType: "image/png", // Assuming PNG format for the captured image
+        }
+      );
       console.log(`Employee successfully clocked ${mode}.`, response.data);
       setIsModalOpen(false);
       setError("");
     } catch (err) {
-      console.error("Failed to clock employee:", err.response ? err.response.data : err);
+      console.error(
+        "Failed to clock employee:",
+        err.response ? err.response.data : err
+      );
       setError(`Failed to clock ${mode}. Please try again.`);
     }
   };
@@ -88,6 +101,12 @@ const SiteDetailPage = () => {
   return (
     <Layout pageTitle="Site Details">
       <div className="container mx-auto p-4">
+        <Link
+          href={`/organisation/${organisationId}`}
+          className="inline-block mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-200 ease-in-out"
+        >
+          ← Back to Sites
+        </Link>
         <div className="flex gap-4 mb-4">
           <button
             className={`px-4 py-2 ${
@@ -126,7 +145,12 @@ const SiteDetailPage = () => {
           ))}
         </ul>
       </div>
-      <ClockModal isOpen={isModalOpen} onClose={handleCloseModal} onClock={handleClock} mode={mode} />
+      <ClockModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onClock={handleClock}
+        mode={mode}
+      />
     </Layout>
   );
 };
