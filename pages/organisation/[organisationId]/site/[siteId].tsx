@@ -156,8 +156,6 @@ const SiteDetailPage = () => {
         onClose={handleCloseModal}
         onClock={handleClock}
         mode={mode as "clockIn" | "clockOut"} // Fix: Update the type of mode
-        siteId={""}
-        employeeId={""}
       />
     </Layout>
   );
