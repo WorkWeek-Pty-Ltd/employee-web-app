@@ -3,15 +3,18 @@ import { useRouter } from "next/router";
 import Layout from "../../../../components/Layout";
 import axios from "axios";
 import Fuse from "fuse.js";
+import ClockModal from "../../../../components/ClockModal";
 
 const SiteDetailPage = () => {
   const router = useRouter();
-  const { organisationId, siteId } = router.query; // Corrected to include organisationId in the URL parameters
+  const { organisationId, siteId } = router.query;
   const [employees, setEmployees] = useState([]);
   const [displayedEmployees, setDisplayedEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
-  const [mode, setMode] = useState("clockIn"); // 'clockIn' or 'clockOut'
+  const [mode, setMode] = useState("clockIn");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
 
   useEffect(() => {
     if (!organisationId || !siteId) {
@@ -47,6 +50,41 @@ const SiteDetailPage = () => {
     setDisplayedEmployees(searchTerm ? result : employees);
   }, [searchTerm, employees]);
 
+  const handleOpenModal = (employeeId: string) => {
+    setSelectedEmployee(employeeId);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleClock = async (data: { latitude: number; longitude: number; accuracy: number; image: string; }) => {
+    if (!selectedEmployee) {
+      console.error("No employee selected for clocking.");
+      return;
+    }
+    try {
+      const endpoint = mode === "clockIn" ? "clockInEmployee" : "clockOutEmployee";
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`, {
+        siteId,
+        employeeId: selectedEmployee,
+        timestamptz: new Date().toISOString(),
+        latitude: data.latitude,
+        longitude: data.longitude,
+        accuracy: data.accuracy,
+        base64Image: data.image,
+        mimeType: "image/png", // Assuming PNG format for the captured image
+      });
+      console.log(`Employee successfully clocked ${mode}.`, response.data);
+      setIsModalOpen(false);
+      setError("");
+    } catch (err) {
+      console.error("Failed to clock employee:", err.response ? err.response.data : err);
+      setError(`Failed to clock ${mode}. Please try again.`);
+    }
+  };
+
   return (
     <Layout pageTitle="Site Details">
       <div className="container mx-auto p-4">
@@ -81,12 +119,14 @@ const SiteDetailPage = () => {
             <li
               key={employee.employee_id}
               className="cursor-pointer hover:bg-gray-100 p-2"
+              onClick={() => handleOpenModal(employee.employee_id)}
             >
               {employee.full_name}
             </li>
           ))}
         </ul>
       </div>
+      <ClockModal isOpen={isModalOpen} onClose={handleCloseModal} onClock={handleClock} mode={mode} />
     </Layout>
   );
 };
