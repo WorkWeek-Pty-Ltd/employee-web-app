@@ -3,14 +3,20 @@ import { useRouter } from "next/router";
 import Layout from "../../../components/Layout";
 import axios from "axios";
 import { apiUrl } from "../../../config";
-import Fuse from 'fuse.js';
+import Fuse from "fuse.js";
+
+interface Site {
+  id: string;
+  name: string;
+  // Add any other properties here
+}
 
 const SitesPage = () => {
   const router = useRouter();
   const { organisationId } = router.query;
-  const [sites, setSites] = useState([]);
-  const [displayedSites, setDisplayedSites] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [sites, setSites] = useState<Site[]>([]);
+  const [displayedSites, setDisplayedSites] = useState<Site[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -39,8 +45,7 @@ const SitesPage = () => {
     const results = fuse.search(searchTerm).map(({ item }) => item);
     setDisplayedSites(searchTerm ? results : sites);
   }, [searchTerm, sites]);
-
-  const handleSiteClick = (siteId) => {
+  const handleSiteClick = (siteId: string) => {
     router.push(`/organisation/${organisationId}/site/${siteId}`);
   };
 
@@ -57,7 +62,7 @@ const SitesPage = () => {
         />
         {error && <p className="text-red-500">{error}</p>}
         <ul className="mt-5">
-          {displayedSites.map((site) => (
+          {displayedSites.map((site: Site) => (
             <li
               key={site.id}
               className="cursor-pointer hover:bg-gray-100 p-2"
