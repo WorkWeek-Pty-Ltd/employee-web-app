@@ -83,8 +83,8 @@ const ClockModal: React.FC<ClockModalProps> = ({
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const data = {
-          latitude: Math.round(position.coords.latitude),
-          longitude: Math.round(position.coords.longitude),
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
           accuracy: Math.round(position.coords.accuracy), // Updated line for accuracy rounding
           base64Image: image,
           mimeType: "image/png",
