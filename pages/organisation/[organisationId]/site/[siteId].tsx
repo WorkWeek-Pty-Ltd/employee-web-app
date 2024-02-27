@@ -17,6 +17,12 @@ const SiteDetailPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
 
+  interface Employee {
+    employee_id: string;
+    full_name: string;
+    // Add any other properties here
+  }
+
   useEffect(() => {
     if (!organisationId || !siteId) {
       console.log("Missing organisation ID or site ID");
@@ -89,7 +95,7 @@ const SiteDetailPage = () => {
       console.log(`Employee successfully clocked ${mode}.`, response.data);
       setIsModalOpen(false);
       setError("");
-    } catch (err) {
+    } catch (err: any) {
       console.error(
         "Failed to clock employee:",
         err.response ? err.response.data : err
@@ -134,7 +140,7 @@ const SiteDetailPage = () => {
         />
         {error && <p className="text-red-500">{error}</p>}
         <ul>
-          {displayedEmployees.map((employee) => (
+          {displayedEmployees.map((employee: Employee) => (
             <li
               key={employee.employee_id}
               className="cursor-pointer hover:bg-gray-100 p-2"
@@ -149,7 +155,9 @@ const SiteDetailPage = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onClock={handleClock}
-        mode={mode}
+        mode={mode as "clockIn" | "clockOut"} // Fix: Update the type of mode
+        siteId={""}
+        employeeId={""}
       />
     </Layout>
   );
