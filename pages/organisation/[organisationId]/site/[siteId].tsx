@@ -2,30 +2,23 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Layout from "../../../../components/Layout";
 import axios from "axios";
-import Fuse from "fuse.js";
 import ClockModal from "../../../../components/ClockModal";
 import Link from "next/link";
-import NotificationBanner from "../../../../components/NotificationBanner"; // Added import for NotificationBanner
+import NotificationBanner from "../../../../components/NotificationBanner";
+import EmployeeList from "../../../../components/EmployeeList"; // Import EmployeeList component
 
 const SiteDetailPage = () => {
   const router = useRouter();
   const { organisationId, siteId } = router.query;
   const [employees, setEmployees] = useState([]);
-  const [displayedEmployees, setDisplayedEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [mode, setMode] = useState("clockIn");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
-  const [showNotification, setShowNotification] = useState(false); // Added state for notification visibility
-  const [notificationMessage, setNotificationMessage] = useState(''); // Added state for notification message
-  const [isNotificationSuccess, setIsNotificationSuccess] = useState(true); // Added state for notification success flag
-
-  interface Employee {
-    employee_id: string;
-    full_name: string;
-    // Add any other properties here
-  }
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [isNotificationSuccess, setIsNotificationSuccess] = useState(true);
 
   useEffect(() => {
     if (!organisationId || !siteId) {
@@ -40,7 +33,6 @@ const SiteDetailPage = () => {
       .then((response) => {
         console.log(`${mode} list fetched successfully.`, response.data);
         setEmployees(response.data);
-        setDisplayedEmployees(response.data);
       })
       .catch((err) => {
         console.error(
@@ -50,16 +42,6 @@ const SiteDetailPage = () => {
         setError("Failed to fetch data. Please try again later.");
       });
   }, [organisationId, siteId, mode]);
-
-  useEffect(() => {
-    if (!employees.length) return;
-
-    const options = { keys: ["full_name"] };
-    const fuse = new Fuse(employees, options);
-    const result = fuse.search(searchTerm).map(({ item }) => item);
-
-    setDisplayedEmployees(searchTerm ? result : employees);
-  }, [searchTerm, employees]);
 
   const handleOpenModal = (employeeId: string) => {
     setSelectedEmployee(employeeId);
@@ -102,7 +84,7 @@ const SiteDetailPage = () => {
       console.log(`Employee successfully clocked ${mode}.`, response.data);
       setIsModalOpen(false);
       setError("");
-      setNotificationMessage('Success');
+      setNotificationMessage("Success");
       setIsNotificationSuccess(true);
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 3000);
@@ -115,7 +97,7 @@ const SiteDetailPage = () => {
         err.response ? err.response.data : err
       );
       setError(`Failed to clock ${mode}. Please try again.`);
-      setNotificationMessage('Failure');
+      setNotificationMessage("Failure");
       setIsNotificationSuccess(false);
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 3000);
@@ -157,19 +139,18 @@ const SiteDetailPage = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         {error && <p className="text-red-500">{error}</p>}
-        <ul>
-          {displayedEmployees.map((employee: Employee) => (
-            <li
-              key={employee.employee_id}
-              className="cursor-pointer hover:bg-gray-100 p-2"
-              onClick={() => handleOpenModal(employee.employee_id)}
-            >
-              {employee.full_name}
-            </li>
-          ))}
-        </ul>
+        <EmployeeList
+          employees={employees}
+          searchTerm={searchTerm}
+          onSelectEmployee={handleOpenModal}
+        />
       </div>
-      {showNotification && <NotificationBanner message={notificationMessage} isSuccess={isNotificationSuccess} />}
+      {showNotification && (
+        <NotificationBanner
+          message={notificationMessage}
+          isSuccess={isNotificationSuccess}
+        />
+      )}
       <ClockModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
