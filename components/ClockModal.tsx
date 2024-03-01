@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef } from "react";
+import { useCamera } from "../hooks/useCamera";
+import { useGeolocation } from "../hooks/useGeolocation";
 
 interface ClockModalProps {
   isOpen: boolean;
@@ -18,98 +20,15 @@ const ClockModal: React.FC<ClockModalProps> = ({
   onSubmit,
   mode,
 }) => {
-  const [image, setImage] = useState("");
-  const [error, setError] = useState("");
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
-
-  const captureImage = () => {
-    if (videoRef.current) {
-      const videoElement = videoRef.current;
-      const canvas = document.createElement("canvas");
-      canvas.width = videoElement.videoWidth;
-      canvas.height = videoElement.videoHeight;
-      canvas
-        .getContext("2d")!
-        .drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-      const imageDataUrl = canvas.toDataURL("image/png");
-      setImage(imageDataUrl);
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      requestPermissionsAndCapture();
-    }
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        (videoRef.current.srcObject as MediaStream)
-          .getTracks()
-          .forEach((track) => track.stop());
-      }
-      resetModalState();
-    };
-  }, [isOpen]);
-
-  const resetModalState = () => {
-    setImage("");
-    setLatitude(null);
-    setLongitude(null);
-    setAccuracy(null);
-    setError("");
-  };
-
-  const requestPermissionsAndCapture = () => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then((stream) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current?.play();
-          };
-        }
-      })
-      .catch((err) => {
-        console.error("Error accessing the camera:", err);
-        setError(
-          "Error accessing the camera. Please ensure you have given the necessary permissions."
-        );
-      });
-
-    if (!navigator.geolocation) {
-      console.error("Geolocation is not supported by your browser");
-      setError("Geolocation is not supported by your browser");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLatitude(position.coords.latitude);
-        setLongitude(position.coords.longitude);
-        setAccuracy(Math.round(position.coords.accuracy));
-      },
-      () => {
-        console.error("Unable to retrieve your location");
-        setError("Unable to retrieve your location");
-      }
-    );
-  };
+  const { image, captureImage, error: cameraError, videoRef } = useCamera(isOpen);
+  const { latitude, longitude, accuracy, error: geoError } = useGeolocation();
 
   const handleSubmit = () => {
     if (latitude && longitude && accuracy && image) {
-      onSubmit({
-        latitude,
-        longitude,
-        accuracy,
-        image,
-      });
-      resetModalState();
+      onSubmit({ latitude, longitude, accuracy, image });
+      onClose();
     } else {
       console.error("Missing data for submission");
-      setError("Missing data for submission");
     }
   };
 
@@ -135,12 +54,12 @@ const ClockModal: React.FC<ClockModalProps> = ({
               <img src={image} alt="Selfie preview" className="mt-4 mx-auto" />
             )}
           </div>
-          {error && <p className="text-red-500">{error}</p>}
+          {(cameraError || geoError) && <p className="text-red-500">{cameraError || geoError}</p>}
           <div className="items-center px-4 py-3">
             <button
               id="ok-btn"
               className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-              disabled={!image || latitude === null || longitude === null || accuracy === null}
+              disabled={!image || !latitude || !longitude || !accuracy}
               onClick={handleSubmit}
             >
               {`Confirm ${mode}`}
@@ -148,10 +67,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
             <button
               id="close-btn"
               className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              onClick={() => {
-                onClose();
-                resetModalState();
-              }}
+              onClick={onClose}
             >
               Close
             </button>
