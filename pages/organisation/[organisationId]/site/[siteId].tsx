@@ -5,6 +5,7 @@ import axios from "axios";
 import Fuse from "fuse.js";
 import ClockModal from "../../../../components/ClockModal";
 import Link from "next/link";
+import NotificationBanner from "../../../../components/NotificationBanner"; // Added import for NotificationBanner
 
 const SiteDetailPage = () => {
   const router = useRouter();
@@ -16,6 +17,9 @@ const SiteDetailPage = () => {
   const [mode, setMode] = useState("clockIn");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
+  const [showNotification, setShowNotification] = useState(false); // Added state for notification visibility
+  const [notificationMessage, setNotificationMessage] = useState(''); // Added state for notification message
+  const [isNotificationSuccess, setIsNotificationSuccess] = useState(true); // Added state for notification success flag
 
   interface Employee {
     employee_id: string;
@@ -92,14 +96,16 @@ const SiteDetailPage = () => {
           longitude: data.longitude,
           accuracy: data.accuracy,
           base64Image: data.image,
-          mimeType: "image/png", // Assuming PNG format for the captured image
+          mimeType: "image/png",
         }
       );
       console.log(`Employee successfully clocked ${mode}.`, response.data);
       setIsModalOpen(false);
       setError("");
-      // Refreshing employees list to reflect the changes
-      // It might be necessary to adjust this logic depending on how the API handles updates
+      setNotificationMessage('Success');
+      setIsNotificationSuccess(true);
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000);
       setEmployees((prev) =>
         prev.filter((emp) => emp.employee_id !== selectedEmployee)
       );
@@ -109,6 +115,10 @@ const SiteDetailPage = () => {
         err.response ? err.response.data : err
       );
       setError(`Failed to clock ${mode}. Please try again.`);
+      setNotificationMessage('Failure');
+      setIsNotificationSuccess(false);
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000);
     }
   };
 
@@ -159,6 +169,7 @@ const SiteDetailPage = () => {
           ))}
         </ul>
       </div>
+      {showNotification && <NotificationBanner message={notificationMessage} isSuccess={isNotificationSuccess} />}
       <ClockModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
