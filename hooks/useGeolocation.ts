@@ -28,7 +28,7 @@ export const useGeolocation = () => {
         setGeolocation({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
+          accuracy: Math.round(position.coords.accuracy),
           error: '',
         });
       },
