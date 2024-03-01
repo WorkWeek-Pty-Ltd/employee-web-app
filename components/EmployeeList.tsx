@@ -23,7 +23,10 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, searchTerm, onSe
         <li
           key={employee.employee_id}
           className="cursor-pointer hover:bg-gray-100 p-2"
-          onClick={() => onSelectEmployee(employee.employee_id)}
+          onClick={() => {
+            console.log(`Selecting employee with ID: ${employee.employee_id}`);
+            onSelectEmployee(employee.employee_id);
+          }}
         >
           {employee.full_name}
         </li>

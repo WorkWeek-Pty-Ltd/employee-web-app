@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface GeolocationState {
   latitude: number | null;
@@ -19,36 +19,39 @@ export const useLocationAccuracy = () => {
     let watchId: number;
 
     const onSuccess = (position: GeolocationPosition) => {
-      console.log('Location tracking success:', position.coords);
+      console.log("Location tracking success:", position.coords);
       setGeolocation({
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
-        accuracy: position.coords.accuracy,
+        accuracy: Math.round(position.coords.accuracy),
         error: null,
       });
     };
 
     const onError = (error: GeolocationPositionError) => {
-      console.error('Error tracking location:', error.message);
-      setGeolocation(geo => ({ ...geo, error: error.message }));
+      console.error("Error tracking location:", error.message);
+      setGeolocation((geo) => ({ ...geo, error: error.message }));
     };
 
-    if ('geolocation' in navigator) {
+    if ("geolocation" in navigator) {
       watchId = navigator.geolocation.watchPosition(onSuccess, onError, {
         enableHighAccuracy: true,
         timeout: 5000,
         maximumAge: 0,
       });
-      console.log('Location tracking initiated.');
+      console.log("Location tracking initiated.");
     } else {
-      console.error('Geolocation is not supported by this browser.');
-      setGeolocation(geo => ({ ...geo, error: "Geolocation is not supported by this browser." }));
+      console.error("Geolocation is not supported by this browser.");
+      setGeolocation((geo) => ({
+        ...geo,
+        error: "Geolocation is not supported by this browser.",
+      }));
     }
 
     return () => {
       if (watchId) {
         navigator.geolocation.clearWatch(watchId);
-        console.log('Location tracking stopped.');
+        console.log("Location tracking stopped.");
       }
     };
   }, []);

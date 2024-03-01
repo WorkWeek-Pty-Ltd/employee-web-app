@@ -3,11 +3,16 @@ import { useRouter } from "next/router";
 import Layout from "../../../../components/Layout";
 import ClockModal from "../../../../components/ClockModal";
 import NotificationBanner from "../../../../components/NotificationBanner";
-import EmployeeList from "../../../../components/EmployeeList"; // Import EmployeeList component
-import { getClockInList, getClockOutList, clockInEmployee, clockOutEmployee } from "../../../../utils/api";
+import EmployeeList from "../../../../components/EmployeeList";
+import {
+  getClockInList,
+  getClockOutList,
+  clockInEmployee,
+  clockOutEmployee,
+} from "../../../../utils/api";
 import ModeSwitch from "../../../../components/ModeSwitch";
 import SiteHeader from "../../../../components/SiteHeader";
-import Link from "next/link"; // Re-added based on reviewer's feedback
+import { useLocationAccuracy } from "../../../../hooks/useLocationAccuracy";
 
 const SiteDetailPage = () => {
   const router = useRouter();
@@ -21,6 +26,7 @@ const SiteDetailPage = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [isNotificationSuccess, setIsNotificationSuccess] = useState(true);
+  const { latitude, longitude, accuracy } = useLocationAccuracy(); // Destructure the needed values
 
   useEffect(() => {
     if (!organisationId || !siteId) {
@@ -29,11 +35,17 @@ const SiteDetailPage = () => {
     }
     const fetchEmployees = async () => {
       try {
-        const response = mode === "clockIn" ? await getClockInList(siteId) : await getClockOutList(siteId);
+        const response =
+          mode === "clockIn"
+            ? await getClockInList(siteId)
+            : await getClockOutList(siteId);
         console.log(`${mode} list fetched successfully.`, response);
         setEmployees(response);
       } catch (err) {
-        console.error("Failed to fetch data:", err.response ? err.response.data : err);
+        console.error(
+          "Failed to fetch data:",
+          err.response ? err.response.data : err
+        );
         setError("Failed to fetch data. Please try again later.");
       }
     };
@@ -52,9 +64,6 @@ const SiteDetailPage = () => {
   const handleClock = async (
     mode: "clockIn" | "clockOut",
     data: {
-      latitude: number;
-      longitude: number;
-      accuracy: number;
       image: string;
     }
   ) => {
@@ -63,7 +72,24 @@ const SiteDetailPage = () => {
       return;
     }
     try {
-      const response = mode === "clockIn" ? await clockInEmployee({ ...data, siteId, employeeId: selectedEmployee }) : await clockOutEmployee({ ...data, siteId, employeeId: selectedEmployee });
+      const response =
+        mode === "clockIn"
+          ? await clockInEmployee({
+              ...data,
+              siteId,
+              employeeId: selectedEmployee,
+              latitude,
+              longitude,
+              accuracy,
+            })
+          : await clockOutEmployee({
+              ...data,
+              siteId,
+              employeeId: selectedEmployee,
+              latitude,
+              longitude,
+              accuracy,
+            });
       console.log(`Employee successfully clocked ${mode}.`, response);
       setIsModalOpen(false);
       setError("");
@@ -71,9 +97,14 @@ const SiteDetailPage = () => {
       setIsNotificationSuccess(true);
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 3000);
-      setEmployees((prev) => prev.filter((emp) => emp.employee_id !== selectedEmployee));
+      setEmployees((prev) =>
+        prev.filter((emp) => emp.employee_id !== selectedEmployee)
+      );
     } catch (err) {
-      console.error("Failed to clock employee:", err.response ? err.response.data : err);
+      console.error(
+        "Failed to clock employee:",
+        err.response ? err.response.data : err
+      );
       setError(`Failed to clock ${mode}. Please try again.`);
       setNotificationMessage("Failure");
       setIsNotificationSuccess(false);
@@ -106,15 +137,18 @@ const SiteDetailPage = () => {
           notification={{
             message: notificationMessage,
             isSuccess: isNotificationSuccess,
-            isVisible: showNotification
+            isVisible: showNotification,
           }}
         />
       )}
       <ClockModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        onSubmit={(data) => handleClock(mode, data)}
+        onSubmit={(data) => handleClock(mode, { image: data.image })}
         mode={mode as "clockIn" | "clockOut"}
+        latitude={latitude}
+        longitude={longitude}
+        accuracy={accuracy}
       />
     </Layout>
   );
