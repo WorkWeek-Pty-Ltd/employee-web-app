@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useCamera } from "../hooks/useCamera";
 
 interface ClockModalProps {
@@ -9,6 +9,7 @@ interface ClockModalProps {
     longitude: number;
     accuracy: number;
     image: string;
+    locationWarning?: boolean; // Add optional locationWarning flag
   }) => void;
   mode: "clockIn" | "clockOut";
   latitude: number;
@@ -25,16 +26,26 @@ const ClockModal: React.FC<ClockModalProps> = ({
   longitude,
   accuracy,
 }) => {
-  const { image, captureImage, error: cameraError, videoRef } = useCamera(isOpen);
+  const { image, captureImage: originalCaptureImage, error: cameraError, videoRef } = useCamera(isOpen);
+  const [showProceedAnyway, setShowProceedAnyway] = useState(false); // State to control the visibility of the 'Proceed Anyway' button
 
-  const handleSubmit = () => {
-    if (latitude && longitude && accuracy && image) {
-      console.log(`Submitting ${mode} with geolocation data.`);
-      onSubmit({ latitude, longitude, accuracy, image });
+  const handleSubmit = (forceSubmit = false) => {
+    if (latitude && longitude && (accuracy <= 500 || forceSubmit) && image) {
+      console.log(`Submitting ${mode} with geolocation data and accuracy of ${accuracy} meters.`);
+      onSubmit({ latitude, longitude, accuracy, image, locationWarning: accuracy > 500 });
+      setShowProceedAnyway(false); // Reset the state to hide 'Proceed Anyway' button after submission
       onClose();
+    } else if (!forceSubmit) {
+      console.error("Location accuracy is not within the required range.");
+      setShowProceedAnyway(true); // Show the 'Proceed Anyway' button if location accuracy check fails
     } else {
       console.error("Missing data for submission");
     }
+  };
+
+  const captureImage = () => {
+    originalCaptureImage();
+    setShowProceedAnyway(false); // Reset the 'Proceed Anyway' visibility when a new selfie is taken
   };
 
   if (!isOpen) return null;
@@ -58,17 +69,31 @@ const ClockModal: React.FC<ClockModalProps> = ({
             {image && (
               <img src={image} alt="Selfie preview" className="mt-4 mx-auto" />
             )}
+            {showProceedAnyway && (
+              <p className="text-red-500 mt-2">
+                Your location accuracy is not within 500 meters. You can wait for a better signal or proceed with a note of inaccuracy.
+              </p>
+            )}
           </div>
           {cameraError && <p className="text-red-500">{cameraError}</p>}
           <div className="items-center px-4 py-3">
             <button
               id="ok-btn"
               className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-              disabled={!image || !latitude || !longitude || !accuracy}
-              onClick={handleSubmit}
+              disabled={!image || !latitude || !longitude}
+              onClick={() => handleSubmit()}
             >
               {`Confirm ${mode}`}
             </button>
+            {showProceedAnyway && (
+              <button
+                id="proceed-anyway-btn"
+                className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-500 text-base font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                onClick={() => handleSubmit(true)}
+              >
+                Proceed Anyway
+              </button>
+            )}
             <button
               id="close-btn"
               className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
