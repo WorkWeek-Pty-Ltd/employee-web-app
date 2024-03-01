@@ -9,11 +9,15 @@ This project utilizes Next.js for the frontend and Tailwind CSS for styling, off
 ## Features
 
 - Site and employee selection for clocking in/out
-- Geolocation-based verification
+- Enhanced geolocation-based verification with improved accuracy
 - Selfie capture for additional security
 - Fuzzy match search for quick lookups
 - Mobile optimization for varied device sizes
 - Real-time feedback on clocking status
+
+## Geolocation Update
+
+As part of our continuous effort to improve the app's accuracy and performance, we have transitioned from using our custom `useGeolocation` hook to a more efficient and accurate `useLocationAccuracy` hook for geolocation data. This ensures that the geolocation data we collect is more precise, improving the overall functionality and user experience of the clock in/out process.
 
 ## Getting started
 
