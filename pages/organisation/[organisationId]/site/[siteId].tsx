@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Layout from "../../../../components/Layout";
-import axios from "axios";
 import ClockModal from "../../../../components/ClockModal";
 import Link from "next/link";
 import NotificationBanner from "../../../../components/NotificationBanner";
 import EmployeeList from "../../../../components/EmployeeList"; // Import EmployeeList component
+import { getClockInList, getClockOutList, clockInEmployee, clockOutEmployee } from "../../../../utils/api";
 
 const SiteDetailPage = () => {
   const router = useRouter();
@@ -25,22 +25,17 @@ const SiteDetailPage = () => {
       console.log("Missing organisation ID or site ID");
       return;
     }
-    const endpoint = mode === "clockIn" ? "getClockInList" : "getClockOutList";
-    axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`, {
-        siteId,
-      })
-      .then((response) => {
-        console.log(`${mode} list fetched successfully.`, response.data);
-        setEmployees(response.data);
-      })
-      .catch((err) => {
-        console.error(
-          "Failed to fetch data:",
-          err.response ? err.response.data : err
-        );
+    const fetchEmployees = async () => {
+      try {
+        const response = mode === "clockIn" ? await getClockInList(siteId) : await getClockOutList(siteId);
+        console.log(`${mode} list fetched successfully.`, response);
+        setEmployees(response);
+      } catch (err) {
+        console.error("Failed to fetch data:", err.response ? err.response.data : err);
         setError("Failed to fetch data. Please try again later.");
-      });
+      }
+    };
+    fetchEmployees();
   }, [organisationId, siteId, mode]);
 
   const handleOpenModal = (employeeId: string) => {
@@ -65,37 +60,18 @@ const SiteDetailPage = () => {
       console.error("No employee selected for clocking.");
       return;
     }
-    const endpoint =
-      mode === "clockIn" ? "clockInEmployee" : "clockOutEmployee";
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`,
-        {
-          siteId,
-          employeeId: selectedEmployee,
-          timestamptz: new Date().toISOString(),
-          latitude: data.latitude,
-          longitude: data.longitude,
-          accuracy: data.accuracy,
-          base64Image: data.image,
-          mimeType: "image/png",
-        }
-      );
-      console.log(`Employee successfully clocked ${mode}.`, response.data);
+      const response = mode === "clockIn" ? await clockInEmployee({ ...data, siteId, employeeId: selectedEmployee }) : await clockOutEmployee({ ...data, siteId, employeeId: selectedEmployee });
+      console.log(`Employee successfully clocked ${mode}.`, response);
       setIsModalOpen(false);
       setError("");
       setNotificationMessage("Success");
       setIsNotificationSuccess(true);
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 3000);
-      setEmployees((prev) =>
-        prev.filter((emp) => emp.employee_id !== selectedEmployee)
-      );
-    } catch (err: any) {
-      console.error(
-        "Failed to clock employee:",
-        err.response ? err.response.data : err
-      );
+      setEmployees((prev) => prev.filter((emp) => emp.employee_id !== selectedEmployee));
+    } catch (err) {
+      console.error("Failed to clock employee:", err.response ? err.response.data : err);
       setError(`Failed to clock ${mode}. Please try again.`);
       setNotificationMessage("Failure");
       setIsNotificationSuccess(false);

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Layout from "../../../components/Layout";
-import axios from "axios";
-import { apiUrl } from "../../../config";
+import { getSites } from "../../../utils/api";
 import Fuse from "fuse.js";
 
 interface Site {
@@ -20,15 +19,13 @@ const SitesPage = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (organisationId) {
-      axios
-        .post(`${apiUrl}/getSites`, {
-          organisationId: organisationId,
-        })
+    const orgId = typeof organisationId === 'string' ? organisationId : '';
+    if (orgId) {
+      getSites(orgId)
         .then((response) => {
-          console.log("Sites fetched successfully.", response.data);
-          setSites(response.data);
-          setDisplayedSites(response.data);
+          console.log("Sites fetched successfully.", response);
+          setSites(response);
+          setDisplayedSites(response);
         })
         .catch((err) => {
           console.error(

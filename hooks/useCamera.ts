@@ -7,7 +7,9 @@ export const useCamera = (isOpen) => {
 
   useEffect(() => {
     const obtainVideoStream = async () => {
-      if (!isOpen) return;
+      if (!isOpen) {
+        return;
+      }
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         if (videoRef.current) {
@@ -33,6 +35,7 @@ export const useCamera = (isOpen) => {
         tracks.forEach(track => track.stop());
         console.log('Camera stream stopped.');
       }
+      setImage(''); // Reset the image after the modal is closed or the post request is completed
     };
   }, [isOpen]);
 
