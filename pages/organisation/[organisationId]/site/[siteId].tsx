@@ -147,8 +147,11 @@ const SiteDetailPage = () => {
       </div>
       {showNotification && (
         <NotificationBanner
-          message={notificationMessage}
-          isSuccess={isNotificationSuccess}
+          notification={{
+            message: notificationMessage,
+            isSuccess: isNotificationSuccess,
+            isVisible: showNotification
+          }}
         />
       )}
       <ClockModal
