@@ -1,31 +1,29 @@
 import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
 
 interface ClockModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onClock: (data: {
+  onSubmit: (data: {
     latitude: number;
     longitude: number;
     accuracy: number;
     image: string;
   }) => void;
   mode: "clockIn" | "clockOut";
-  siteId: string;
-  employeeId: string;
 }
 
 const ClockModal: React.FC<ClockModalProps> = ({
   isOpen,
   onClose,
-  onClock,
+  onSubmit,
   mode,
-  siteId,
-  employeeId,
 }) => {
   const [image, setImage] = useState("");
   const [error, setError] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [accuracy, setAccuracy] = useState<number | null>(null);
 
   const captureImage = () => {
     if (videoRef.current) {
@@ -71,9 +69,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
           "Error accessing the camera. Please ensure you have given the necessary permissions."
         );
       });
-  };
 
-  const performClockAction = async () => {
     if (!navigator.geolocation) {
       console.error("Geolocation is not supported by your browser");
       setError("Geolocation is not supported by your browser");
@@ -81,46 +77,30 @@ const ClockModal: React.FC<ClockModalProps> = ({
     }
 
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const data = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: Math.round(position.coords.accuracy), // Updated line for accuracy rounding
-          base64Image: image,
-          mimeType: "image/png",
-        };
-
-        const endpoint =
-          mode === "clockIn" ? "clockInEmployee" : "clockOutEmployee";
-        try {
-          await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`, {
-            siteId: siteId,
-            employeeId: employeeId,
-            timestamptz: new Date().toISOString(),
-            latitude: data.latitude,
-            longitude: data.longitude,
-            accuracy: data.accuracy,
-            base64Image: data.base64Image, // Change 'image' to 'base64Image'
-            mimeType: data.mimeType, // Add 'mimeType' property
-          });
-          console.log(`Employee successfully clocked ${mode}.`);
-          onClose();
-          onClock({
-            latitude: data.latitude,
-            longitude: data.longitude,
-            accuracy: data.accuracy,
-            image: data.base64Image, // Add 'image' property
-          });
-        } catch (err) {
-          console.error(`Failed to clock ${mode}:`, err);
-          setError(`Failed to clock ${mode}. Please try again.`);
-        }
+      (position) => {
+        setLatitude(position.coords.latitude);
+        setLongitude(position.coords.longitude);
+        setAccuracy(Math.round(position.coords.accuracy));
       },
       () => {
         console.error("Unable to retrieve your location");
         setError("Unable to retrieve your location");
       }
     );
+  };
+
+  const handleSubmit = () => {
+    if (latitude && longitude && accuracy && image) {
+      onSubmit({
+        latitude,
+        longitude,
+        accuracy,
+        image,
+      });
+    } else {
+      console.error("Missing data for submission");
+      setError("Missing data for submission");
+    }
   };
 
   if (!isOpen) return null;
@@ -150,8 +130,8 @@ const ClockModal: React.FC<ClockModalProps> = ({
             <button
               id="ok-btn"
               className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-              disabled={!image}
-              onClick={performClockAction}
+              disabled={!image || latitude === null || longitude === null || accuracy === null}
+              onClick={handleSubmit}
             >
               {`Confirm ${mode}`}
             </button>

@@ -95,6 +95,9 @@ const SiteDetailPage = () => {
       console.log(`Employee successfully clocked ${mode}.`, response.data);
       setIsModalOpen(false);
       setError("");
+      // Refreshing employees list to reflect the changes
+      // It might be necessary to adjust this logic depending on how the API handles updates
+      setEmployees(prev => prev.filter(emp => emp.employee_id !== selectedEmployee));
     } catch (err: any) {
       console.error(
         "Failed to clock employee:",
@@ -154,7 +157,7 @@ const SiteDetailPage = () => {
       <ClockModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        onClock={handleClock}
+        onSubmit={handleClock}
         mode={mode as "clockIn" | "clockOut"} // Fix: Update the type of mode
       />
     </Layout>
