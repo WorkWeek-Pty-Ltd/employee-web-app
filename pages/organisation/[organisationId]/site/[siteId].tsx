@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Layout from "../../../../components/Layout";
 import ClockModal from "../../../../components/ClockModal";
-import Link from "next/link";
 import NotificationBanner from "../../../../components/NotificationBanner";
 import EmployeeList from "../../../../components/EmployeeList"; // Import EmployeeList component
 import { getClockInList, getClockOutList, clockInEmployee, clockOutEmployee } from "../../../../utils/api";
+import ModeSwitch from "../../../../components/ModeSwitch";
+import SiteHeader from "../../../../components/SiteHeader";
+import Link from "next/link"; // Re-added based on reviewer's feedback
 
 const SiteDetailPage = () => {
   const router = useRouter();
@@ -83,30 +85,8 @@ const SiteDetailPage = () => {
   return (
     <Layout pageTitle="Site Details">
       <div className="container mx-auto p-4">
-        <Link
-          href={`/organisation/${organisationId}`}
-          className="inline-block mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-200 ease-in-out"
-        >
-          ← Back to Sites
-        </Link>
-        <div className="flex gap-4 mb-4">
-          <button
-            className={`px-4 py-2 ${
-              mode === "clockIn" ? "bg-blue-500 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setMode("clockIn")}
-          >
-            Clock In
-          </button>
-          <button
-            className={`px-4 py-2 ${
-              mode === "clockOut" ? "bg-blue-500 text-white" : "bg-gray-200"
-            }`}
-            onClick={() => setMode("clockOut")}
-          >
-            Clock Out
-          </button>
-        </div>
+        <SiteHeader organisationId={organisationId as string} />
+        <ModeSwitch mode={mode} setMode={setMode} />
         <input
           type="search"
           className="border p-2 w-full mb-4"
