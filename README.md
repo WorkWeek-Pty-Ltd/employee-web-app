@@ -1,10 +1,10 @@
 # Workweek Employee Web App
 
-The Workweek Employee Web App is designed to streamline the clocking process for employees across various sites within an organization. Utilizing geolocation and selfie verification, it simplifies attendance tracking and ensures a seamless user experience.
+The Workweek Employee Web App is a comprehensive solution designed to streamline and simplify the process of clocking in and out for employees across various sites. Leveraging geolocation and selfie verification, the app enhances attendance tracking and ensures a seamless user experience.
 
 ## Overview
 
-Built with Next.js and styled with Tailwind CSS, this web application offers a responsive and intuitive interface. It communicates with backend services via RESTful API endpoints for efficient data handling. The app is optimized for mobile use, ensuring accessibility across different device sizes.
+This project utilizes Next.js for the frontend and Tailwind CSS for styling, offering a responsive and intuitive interface. Employees can clock in or out by selecting their site, taking a selfie, and allowing the app to capture their geolocation. The app communicates with backend services via RESTful API endpoints for efficient data handling and is optimized for mobile use.
 
 ## Features
 

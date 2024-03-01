@@ -72,24 +72,21 @@ const SiteDetailPage = () => {
       return;
     }
     try {
+      const payload = {
+        siteId: siteId as string,
+        employeeId: selectedEmployee,
+        timestamptz: new Date().toISOString(),
+        latitude: latitude as number,
+        longitude: longitude as number,
+        accuracy: accuracy as number,
+        base64Image: data.image,
+        mimeType: "image/png", // Assuming PNG format for simplicity
+      };
+
       const response =
         mode === "clockIn"
-          ? await clockInEmployee({
-              ...data,
-              siteId,
-              employeeId: selectedEmployee,
-              latitude,
-              longitude,
-              accuracy,
-            })
-          : await clockOutEmployee({
-              ...data,
-              siteId,
-              employeeId: selectedEmployee,
-              latitude,
-              longitude,
-              accuracy,
-            });
+          ? await clockInEmployee(payload)
+          : await clockOutEmployee(payload);
       console.log(`Employee successfully clocked ${mode}.`, response);
       setIsModalOpen(false);
       setError("");

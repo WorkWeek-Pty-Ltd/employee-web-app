@@ -1,6 +1,5 @@
-import React, { useRef } from "react";
+import React from "react";
 import { useCamera } from "../hooks/useCamera";
-import { useGeolocation } from "../hooks/useGeolocation";
 
 interface ClockModalProps {
   isOpen: boolean;
@@ -12,6 +11,9 @@ interface ClockModalProps {
     image: string;
   }) => void;
   mode: "clockIn" | "clockOut";
+  latitude: number;
+  longitude: number;
+  accuracy: number;
 }
 
 const ClockModal: React.FC<ClockModalProps> = ({
@@ -19,12 +21,15 @@ const ClockModal: React.FC<ClockModalProps> = ({
   onClose,
   onSubmit,
   mode,
+  latitude,
+  longitude,
+  accuracy,
 }) => {
   const { image, captureImage, error: cameraError, videoRef } = useCamera(isOpen);
-  const { latitude, longitude, accuracy, error: geoError } = useGeolocation();
 
   const handleSubmit = () => {
     if (latitude && longitude && accuracy && image) {
+      console.log(`Submitting ${mode} with geolocation data.`);
       onSubmit({ latitude, longitude, accuracy, image });
       onClose();
     } else {
@@ -54,7 +59,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
               <img src={image} alt="Selfie preview" className="mt-4 mx-auto" />
             )}
           </div>
-          {(cameraError || geoError) && <p className="text-red-500">{cameraError || geoError}</p>}
+          {cameraError && <p className="text-red-500">{cameraError}</p>}
           <div className="items-center px-4 py-3">
             <button
               id="ok-btn"
