@@ -66,19 +66,22 @@ const SiteDetailPage = () => {
     setIsModalOpen(false);
   };
 
-  const handleClock = async (data: {
-    latitude: number;
-    longitude: number;
-    accuracy: number;
-    image: string;
-  }) => {
+  const handleClock = async (
+    mode: "clockIn" | "clockOut",
+    data: {
+      latitude: number;
+      longitude: number;
+      accuracy: number;
+      image: string;
+    }
+  ) => {
     if (!selectedEmployee) {
       console.error("No employee selected for clocking.");
       return;
     }
+    const endpoint =
+      mode === "clockIn" ? "clockInEmployee" : "clockOutEmployee";
     try {
-      const endpoint =
-        mode === "clockIn" ? "clockInEmployee" : "clockOutEmployee";
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/${endpoint}`,
         {
@@ -97,7 +100,9 @@ const SiteDetailPage = () => {
       setError("");
       // Refreshing employees list to reflect the changes
       // It might be necessary to adjust this logic depending on how the API handles updates
-      setEmployees(prev => prev.filter(emp => emp.employee_id !== selectedEmployee));
+      setEmployees((prev) =>
+        prev.filter((emp) => emp.employee_id !== selectedEmployee)
+      );
     } catch (err: any) {
       console.error(
         "Failed to clock employee:",
@@ -157,8 +162,8 @@ const SiteDetailPage = () => {
       <ClockModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        onSubmit={handleClock}
-        mode={mode as "clockIn" | "clockOut"} // Fix: Update the type of mode
+        onSubmit={(data) => handleClock(mode, data)}
+        mode={mode as "clockIn" | "clockOut"}
       />
     </Layout>
   );
