@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCamera } from "../hooks/useCamera";
+import validateGeolocation from "../utils/validateGeolocation";
 
 interface ClockModalProps {
   isOpen: boolean;
@@ -9,7 +10,6 @@ interface ClockModalProps {
     longitude: number;
     accuracy: number;
     image: string;
-    locationWarning?: boolean; // Add optional locationWarning flag
   }) => void;
   mode: "clockIn" | "clockOut";
   latitude: number;
@@ -26,18 +26,40 @@ const ClockModal: React.FC<ClockModalProps> = ({
   longitude,
   accuracy,
 }) => {
-  const { image, captureImage: originalCaptureImage, error: cameraError, videoRef } = useCamera(isOpen);
+  const {
+    image,
+    captureImage: originalCaptureImage,
+    error: cameraError,
+    videoRef,
+  } = useCamera(isOpen);
   const [showProceedAnyway, setShowProceedAnyway] = useState(false); // State to control the visibility of the 'Proceed Anyway' button
+  const [isLocationValid, setIsLocationValid] = useState(true);
+  // State to manage the location validation error message
+  const [locationValidationError, setLocationValidationError] = useState("");
+
+  useEffect(() => {
+    setIsLocationValid(validateGeolocation(latitude, longitude, accuracy));
+  }, [latitude, longitude, accuracy]);
 
   const handleSubmit = (forceSubmit = false) => {
-    if (latitude && longitude && (accuracy <= 500 || forceSubmit) && image) {
-      console.log(`Submitting ${mode} with geolocation data and accuracy of ${accuracy} meters.`);
-      onSubmit({ latitude, longitude, accuracy, image, locationWarning: accuracy > 500 });
+    if (!isLocationValid && !forceSubmit) {
+      setLocationValidationError(
+        "Invalid location, please move to a different location and try again."
+      );
+      return;
+    }
+    if ((isLocationValid || forceSubmit) && image) {
+      console.log(
+        `Submitting ${mode} with geolocation data and accuracy of ${accuracy} meters.`
+      );
+      onSubmit({
+        latitude,
+        longitude,
+        accuracy,
+        image,
+      });
       setShowProceedAnyway(false); // Reset the state to hide 'Proceed Anyway' button after submission
       onClose();
-    } else if (!forceSubmit) {
-      console.error("Location accuracy is not within the required range.");
-      setShowProceedAnyway(true); // Show the 'Proceed Anyway' button if location accuracy check fails
     } else {
       console.error("Missing data for submission");
     }
@@ -46,6 +68,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
   const captureImage = () => {
     originalCaptureImage();
     setShowProceedAnyway(false); // Reset the 'Proceed Anyway' visibility when a new selfie is taken
+    setLocationValidationError(""); // Reset the location validation error message when a new selfie is taken
   };
 
   if (!isOpen) return null;
@@ -66,12 +89,16 @@ const ClockModal: React.FC<ClockModalProps> = ({
             >
               {image ? "Retake Selfie" : "Capture Selfie"}
             </button>
+            {locationValidationError && (
+              <p className="text-red-500 mt-2">{locationValidationError}</p>
+            )}
             {image && (
               <img src={image} alt="Selfie preview" className="mt-4 mx-auto" />
             )}
             {showProceedAnyway && (
               <p className="text-red-500 mt-2">
-                Your location accuracy is not within 500 meters. You can wait for a better signal or proceed with a note of inaccuracy.
+                Your location accuracy is not within 500 meters. You can wait
+                for a better signal or proceed with a note of inaccuracy.
               </p>
             )}
           </div>
@@ -80,7 +107,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
             <button
               id="ok-btn"
               className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-              disabled={!image || !latitude || !longitude}
+              disabled={!image || !isLocationValid}
               onClick={() => handleSubmit()}
             >
               {`Confirm ${mode}`}

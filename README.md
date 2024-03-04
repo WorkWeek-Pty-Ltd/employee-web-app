@@ -1,23 +1,20 @@
 # Workweek Employee Web App
 
-The Workweek Employee Web App is a comprehensive solution designed to streamline and simplify the process of clocking in and out for employees across various sites. Leveraging geolocation and selfie verification, the app enhances attendance tracking and ensures a seamless user experience.
+The Workweek Employee Web App is designed to simplify and automate the process of clocking in and out for employees across various sites. Utilizing geolocation and selfie verification, this web application aims to enhance the accuracy and efficiency of attendance tracking.
 
 ## Overview
 
-This project utilizes Next.js for the frontend and Tailwind CSS for styling, offering a responsive and intuitive interface. Employees can clock in or out by selecting their site, taking a selfie, and allowing the app to capture their geolocation. The app communicates with backend services via RESTful API endpoints for efficient data handling and is optimized for mobile use.
+This project leverages the power of Next.js for its front-end framework, paired with Tailwind CSS for styling, to deliver a responsive and user-friendly interface. The app allows employees to clock in or out by selecting their site, capturing a selfie, and automatically capturing their geolocation. It interacts with a backend via RESTful API endpoints for seamless data handling and is optimized for mobile usage.
 
 ## Features
 
 - Site and employee selection for clocking in/out
-- Enhanced geolocation-based verification with improved accuracy
-- Selfie capture for additional security
-- Fuzzy match search for quick lookups
-- Mobile optimization for varied device sizes
+- Selfie capture for identity verification
+- Geolocation-based attendance tracking
+- Improved location accuracy for precise geolocation data
+- Fuzzy match search for quick site and employee lookups
+- Mobile optimized for various device sizes
 - Real-time feedback on clocking status
-
-## Geolocation Update
-
-As part of our continuous effort to improve the app's accuracy and performance, we have transitioned from using our custom `useGeolocation` hook to a more efficient and accurate `useLocationAccuracy` hook for geolocation data. This ensures that the geolocation data we collect is more precise, improving the overall functionality and user experience of the clock in/out process.
 
 ## Getting started
 

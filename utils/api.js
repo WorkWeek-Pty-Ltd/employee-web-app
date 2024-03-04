@@ -1,5 +1,6 @@
 import axios from 'axios';
-const apiUrl = process.env.NEXT_PUBLIC_API_URL; // INPUT_REQUIRED {Set the API base URL in your environment variables}
+import validateGeolocation from './validateGeolocation'; // Import the validateCoordinates utility
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const getSites = async (organisationId) => {
   try {
@@ -35,6 +36,11 @@ export const getClockOutList = async (siteId) => {
 };
 
 export const clockInEmployee = async (data) => {
+  if (!validateGeolocation(data.latitude, data.longitude)) {
+    console.error('Invalid coordinates provided, aborting clock in operation.');
+    return Promise.reject('Invalid coordinates provided.'); // Prevent clocking in with invalid coordinates
+  }
+
   try {
     const response = await axios.post(`${apiUrl}/clockInEmployee`, data);
     console.log('Employee clocked in successfully.');
@@ -46,6 +52,11 @@ export const clockInEmployee = async (data) => {
 };
 
 export const clockOutEmployee = async (data) => {
+  if (!validateGeolocation(data.latitude, data.longitude)) {
+    console.error('Invalid coordinates provided, aborting clock out operation.');
+    return Promise.reject('Invalid coordinates provided.'); // Prevent clocking out with invalid coordinates
+  }
+
   try {
     const response = await axios.post(`${apiUrl}/clockOutEmployee`, data);
     console.log('Employee clocked out successfully.');
