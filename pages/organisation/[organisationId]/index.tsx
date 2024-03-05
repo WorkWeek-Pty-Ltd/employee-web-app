@@ -3,12 +3,7 @@ import { useRouter } from "next/router";
 import Layout from "../../../components/Layout";
 import { getSites } from "../../../utils/api";
 import Fuse from "fuse.js";
-
-interface Site {
-  id: string;
-  name: string;
-  // Add any other properties here
-}
+import { Site } from "../../../types";
 
 const SitesPage = () => {
   const router = useRouter();
