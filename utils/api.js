@@ -1,14 +1,19 @@
-import axios from 'axios';
-import validateGeolocation from './validateGeolocation'; // Import the validateCoordinates utility
+// TODO make this a TS file
+
+import axios from "axios";
+import validateGeolocation from "./validateGeolocation"; // Import the validateCoordinates utility
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const getSites = async (organisationId) => {
   try {
     const response = await axios.post(`${apiUrl}/getSites`, { organisationId });
-    console.log('Sites fetched successfully.');
+    console.log("Sites fetched successfully.");
     return response.data;
   } catch (error) {
-    console.error('Error fetching sites:', error.response ? error.response.data : error);
+    console.error(
+      "Error fetching sites:",
+      error.response ? error.response.data : error
+    );
     throw error;
   }
 };
@@ -16,10 +21,13 @@ export const getSites = async (organisationId) => {
 export const getClockInList = async (siteId) => {
   try {
     const response = await axios.post(`${apiUrl}/getClockInList`, { siteId });
-    console.log('Clock in list fetched successfully.');
+    console.log("Clock in list fetched successfully.");
     return response.data;
   } catch (error) {
-    console.error('Error fetching clock in list:', error.response ? error.response.data : error);
+    console.error(
+      "Error fetching clock in list:",
+      error.response ? error.response.data : error
+    );
     throw error;
   }
 };
@@ -27,42 +35,51 @@ export const getClockInList = async (siteId) => {
 export const getClockOutList = async (siteId) => {
   try {
     const response = await axios.post(`${apiUrl}/getClockOutList`, { siteId });
-    console.log('Clock out list fetched successfully.');
+    console.log("Clock out list fetched successfully.");
     return response.data;
   } catch (error) {
-    console.error('Error fetching clock out list:', error.response ? error.response.data : error);
+    console.error(
+      "Error fetching clock out list:",
+      error.response ? error.response.data : error
+    );
     throw error;
   }
 };
 
 export const clockInEmployee = async (data) => {
-  if (!validateGeolocation(data.latitude, data.longitude)) {
-    console.error('Invalid coordinates provided, aborting clock in operation.');
-    return Promise.reject('Invalid coordinates provided.'); // Prevent clocking in with invalid coordinates
+  if (!validateGeolocation(data.latitude, data.longitude, data.accuracy)) {
+    console.error("Invalid location provided, aborting clock in operation.");
+    return Promise.reject("Invalid location provided."); // Prevent clocking in with invalid coordinates
   }
 
   try {
     const response = await axios.post(`${apiUrl}/clockInEmployee`, data);
-    console.log('Employee clocked in successfully.');
+    console.log("Employee clocked in successfully.");
     return response.data;
   } catch (error) {
-    console.error('Error clocking in employee:', error.response ? error.response.data : error);
+    console.error(
+      "Error clocking in employee:",
+      error.response ? error.response.data : error
+    );
     throw error;
   }
 };
 
 export const clockOutEmployee = async (data) => {
-  if (!validateGeolocation(data.latitude, data.longitude)) {
-    console.error('Invalid coordinates provided, aborting clock out operation.');
-    return Promise.reject('Invalid coordinates provided.'); // Prevent clocking out with invalid coordinates
+  if (!validateGeolocation(data.latitude, data.longitude, data.accuracy)) {
+    console.error("Invalid location provided, aborting clock out operation.");
+    return Promise.reject("Invalid location provided."); // Prevent clocking out with invalid coordinates
   }
 
   try {
     const response = await axios.post(`${apiUrl}/clockOutEmployee`, data);
-    console.log('Employee clocked out successfully.');
+    console.log("Employee clocked out successfully.");
     return response.data;
   } catch (error) {
-    console.error('Error clocking out employee:', error.response ? error.response.data : error);
+    console.error(
+      "Error clocking out employee:",
+      error.response ? error.response.data : error
+    );
     throw error;
   }
 };

@@ -19,7 +19,7 @@ const SitesPage = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const orgId = typeof organisationId === 'string' ? organisationId : '';
+    const orgId = typeof organisationId === "string" ? organisationId : "";
     if (orgId) {
       getSites(orgId)
         .then((response) => {

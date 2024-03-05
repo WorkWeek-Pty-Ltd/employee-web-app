@@ -1,0 +1,3 @@
+// utils/constants.ts
+export const MIN_GEOLOCATION_ACCURACY_THRESHOLD = 500;
+export const MAX_GEOLOCATION_ACCURACY_THRESHOLD = 2000;
