@@ -18,6 +18,7 @@ const SiteDetailPage = () => {
   const router = useRouter();
   const { organisationId, siteId } = router.query;
   const [employees, setEmployees] = useState([]);
+  const [allEmployees, setAllEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [mode, setMode] = useState("clockIn");
@@ -26,7 +27,7 @@ const SiteDetailPage = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [isNotificationSuccess, setIsNotificationSuccess] = useState(true);
-  const { latitude, longitude, accuracy } = useLocationAccuracy(); // Destructure the needed values
+  const { latitude, longitude, accuracy } = useLocationAccuracy();
 
   useEffect(() => {
     if (!organisationId || !siteId) {
@@ -41,6 +42,7 @@ const SiteDetailPage = () => {
             : await getClockOutList(siteId);
         console.log(`${mode} list fetched successfully.`, response);
         setEmployees(response);
+        setAllEmployees(response);
       } catch (err) {
         console.error(
           "Failed to fetch data:",
@@ -85,12 +87,11 @@ const SiteDetailPage = () => {
 
       const response =
         mode === "clockIn"
-          ? await clockInEmployee(payload)
-          : await clockOutEmployee(payload);
+          ? clockInEmployee(payload)
+          : clockOutEmployee(payload);
       console.log(`Employee successful ${mode}.`, response);
       setIsModalOpen(false);
       setError("");
-      // The success notification and state reset are removed as we are using optimistic UI updates.
       // Optimistically remove the employee from the list upon clock submission.
       setEmployees((prev) =>
         prev.filter((emp) => emp.employee_id !== selectedEmployee)
@@ -100,6 +101,7 @@ const SiteDetailPage = () => {
         "Failed to clock employee:",
         err.response ? err.response.data : err
       );
+      setEmployees(allEmployees);
       setError(`Failed to ${mode}. Please try again.`);
       setNotificationMessage("Failure");
       setIsNotificationSuccess(false);
@@ -135,7 +137,9 @@ const SiteDetailPage = () => {
         onSubmit={(data) => handleClock(mode, { image: data.image })}
         onOptimisticUIUpdate={(employeeId) => {
           // Optimistically update the UI before the submission
-          console.log(`Optimistically updating UI for employee ID: ${employeeId}`);
+          console.log(
+            `Optimistically updating UI for employee ID: ${employeeId}`
+          );
           setEmployees((prev) =>
             prev.filter((emp) => emp.employee_id !== employeeId)
           );
