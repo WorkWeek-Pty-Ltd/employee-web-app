@@ -27,6 +27,7 @@ const SiteDetailPage = () => {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [isNotificationSuccess, setIsNotificationSuccess] = useState(true);
   const { latitude, longitude, accuracy } = useLocationAccuracy(); // Destructure the needed values
+  const [isOtherContentVisible, setIsOtherContentVisible] = useState(true);
 
   useEffect(() => {
     if (!organisationId || !siteId) {
@@ -51,6 +52,10 @@ const SiteDetailPage = () => {
     };
     fetchEmployees();
   }, [organisationId, siteId, mode]);
+
+  useEffect(() => {
+    setIsOtherContentVisible(!isModalOpen);
+  }, [isModalOpen]);
 
   const handleOpenModal = (employeeId: string) => {
     setSelectedEmployee(employeeId);
@@ -112,31 +117,24 @@ const SiteDetailPage = () => {
 
   return (
     <Layout pageTitle="Site Details">
-      <div className="container mx-auto p-4">
-        <SiteHeader organisationId={organisationId as string} />
-        <ModeSwitch mode={mode} setMode={setMode} />
-        <input
-          type="search"
-          className="border p-2 w-full mb-4"
-          placeholder="Search for an employee..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        {error && <p className="text-red-500">{error}</p>}
-        <EmployeeList
-          employees={employees}
-          searchTerm={searchTerm}
-          onSelectEmployee={handleOpenModal}
-        />
-      </div>
-      {showNotification && (
-        <NotificationBanner
-          notification={{
-            message: notificationMessage,
-            isSuccess: isNotificationSuccess,
-            isVisible: showNotification,
-          }}
-        />
+      {isOtherContentVisible && (
+        <>
+          <SiteHeader organisationId={organisationId as string} />
+          <ModeSwitch mode={mode} setMode={setMode} />
+          <input
+            type="search"
+            className="border p-2 w-full mb-4"
+            placeholder="Search for an employee..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {error && <p className="text-red-500">{error}</p>}
+          <EmployeeList
+            employees={employees}
+            searchTerm={searchTerm}
+            onSelectEmployee={handleOpenModal}
+          />
+        </>
       )}
       <ClockModal
         isOpen={isModalOpen}
@@ -147,6 +145,15 @@ const SiteDetailPage = () => {
         longitude={longitude}
         accuracy={accuracy}
       />
+      {showNotification && (
+        <NotificationBanner
+          notification={{
+            message: notificationMessage,
+            isSuccess: isNotificationSuccess,
+            isVisible: showNotification,
+          }}
+        />
+      )}
     </Layout>
   );
 };
