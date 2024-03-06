@@ -32,6 +32,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
     captureImage: originalCaptureImage,
     error: cameraError,
     videoRef,
+    resetImage,
   } = useCamera(isOpen);
 
   // New state to track if a selfie has been taken
@@ -53,6 +54,11 @@ const ClockModal: React.FC<ClockModalProps> = ({
     setSelfieTaken(false);
   }, [isOpen]);
 
+  const handleCloseModal = () => {
+    resetImage(); // Reset the captured image when closing the modal
+    onClose(); // Use the passed onClose to close the modal correctly
+  };
+
   const handleSubmit = () => {
     if (image && locationValidationResult.isValid) {
       console.log(
@@ -64,6 +70,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
         accuracy,
         image,
       });
+      resetImage(); // Reset the image after successful submission
       onClose();
     } else {
       console.error("Missing data for submission");
@@ -122,7 +129,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
             <button
               id="close-btn"
               className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              onClick={onClose}
+              onClick={handleCloseModal}
             >
               Close
             </button>

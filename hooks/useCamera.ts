@@ -35,7 +35,7 @@ export const useCamera = (isOpen) => {
         tracks.forEach(track => track.stop());
         console.log('Camera stream stopped.');
       }
-      setImage(''); // Reset the image after the modal is closed or the post request is completed
+      resetImage(); // Reset the image after the modal is closed or the post request is completed
     };
   }, [isOpen]);
 
@@ -63,5 +63,10 @@ export const useCamera = (isOpen) => {
     }
   }, [videoRef]);
 
-  return { image, captureImage, error, videoRef };
+  const resetImage = () => {
+    setImage('');
+    console.log('Image reset successfully.');
+  };
+
+  return { image, captureImage, error, videoRef, resetImage };
 };
