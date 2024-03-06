@@ -73,21 +73,21 @@ const SiteDetailPage = () => {
     }
     try {
       const payload = {
-        siteId: siteId as string,
-        employeeId: selectedEmployee,
+        type: mode === "clockIn" ? "in" : "out",
+        site_id: siteId as string,
+        employee_id: selectedEmployee,
         timestamptz: new Date().toISOString(),
         latitude: latitude as number,
         longitude: longitude as number,
-        accuracy: accuracy as number,
-        base64Image: data.image,
-        mimeType: "image/png", // Assuming PNG format for simplicity
+        accuracy_meters: accuracy as number,
+        selfie_data_uri: data.image,
       };
 
       const response =
         mode === "clockIn"
           ? await clockInEmployee(payload)
           : await clockOutEmployee(payload);
-      console.log(`Employee successfully clocked ${mode}.`, response);
+      console.log(`Employee successful ${mode}.`, response);
       setIsModalOpen(false);
       setError("");
       setNotificationMessage("Success");
@@ -102,7 +102,7 @@ const SiteDetailPage = () => {
         "Failed to clock employee:",
         err.response ? err.response.data : err
       );
-      setError(`Failed to clock ${mode}. Please try again.`);
+      setError(`Failed to ${mode}. Please try again.`);
       setNotificationMessage("Failure");
       setIsNotificationSuccess(false);
       setShowNotification(true);

@@ -53,7 +53,7 @@ export const clockInEmployee = async (data) => {
   }
 
   try {
-    const response = await axios.post(`${apiUrl}/clockInEmployee`, data);
+    const response = await axios.post(`${apiUrl}/insert-clock-event`, data);
     console.log("Employee clocked in successfully.");
     return response.data;
   } catch (error) {
@@ -72,7 +72,7 @@ export const clockOutEmployee = async (data) => {
   }
 
   try {
-    const response = await axios.post(`${apiUrl}/clockOutEmployee`, data);
+    const response = await axios.post(`${apiUrl}/insert-clock-event`, data);
     console.log("Employee clocked out successfully.");
     return response.data;
   } catch (error) {
