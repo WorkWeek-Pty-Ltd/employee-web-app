@@ -94,6 +94,7 @@ const SiteDetailPage = () => {
       setIsNotificationSuccess(true);
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 3000);
+      // hide the employee from the list after clocking
       setEmployees((prev) =>
         prev.filter((emp) => emp.employee_id !== selectedEmployee)
       );
