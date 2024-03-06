@@ -27,7 +27,6 @@ const SiteDetailPage = () => {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [isNotificationSuccess, setIsNotificationSuccess] = useState(true);
   const { latitude, longitude, accuracy } = useLocationAccuracy(); // Destructure the needed values
-  const [isOtherContentVisible, setIsOtherContentVisible] = useState(true);
 
   useEffect(() => {
     if (!organisationId || !siteId) {
@@ -52,10 +51,6 @@ const SiteDetailPage = () => {
     };
     fetchEmployees();
   }, [organisationId, siteId, mode]);
-
-  useEffect(() => {
-    setIsOtherContentVisible(!isModalOpen);
-  }, [isModalOpen]);
 
   const handleOpenModal = (employeeId: string) => {
     setSelectedEmployee(employeeId);
@@ -117,7 +112,7 @@ const SiteDetailPage = () => {
 
   return (
     <Layout pageTitle="Site Details">
-      {isOtherContentVisible && (
+      {!isModalOpen && (
         <>
           <SiteHeader organisationId={organisationId as string} />
           <ModeSwitch mode={mode} setMode={setMode} />
