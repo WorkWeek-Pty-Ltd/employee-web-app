@@ -90,11 +90,8 @@ const SiteDetailPage = () => {
       console.log(`Employee successful ${mode}.`, response);
       setIsModalOpen(false);
       setError("");
-      setNotificationMessage("Success");
-      setIsNotificationSuccess(true);
-      setShowNotification(true);
-      setTimeout(() => setShowNotification(false), 3000);
-      // hide the employee from the list after clocking
+      // The success notification and state reset are removed as we are using optimistic UI updates.
+      // Optimistically remove the employee from the list upon clock submission.
       setEmployees((prev) =>
         prev.filter((emp) => emp.employee_id !== selectedEmployee)
       );
@@ -136,6 +133,14 @@ const SiteDetailPage = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSubmit={(data) => handleClock(mode, { image: data.image })}
+        onOptimisticUIUpdate={(employeeId) => {
+          // Optimistically update the UI before the submission
+          console.log(`Optimistically updating UI for employee ID: ${employeeId}`);
+          setEmployees((prev) =>
+            prev.filter((emp) => emp.employee_id !== employeeId)
+          );
+        }}
+        selectedEmployee={selectedEmployee}
         mode={mode as "clockIn" | "clockOut"}
         latitude={latitude}
         longitude={longitude}

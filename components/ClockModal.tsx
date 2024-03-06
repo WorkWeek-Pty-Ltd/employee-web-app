@@ -12,6 +12,8 @@ interface ClockModalProps {
     accuracy: number;
     image: string;
   }) => void;
+  onOptimisticUIUpdate: (employeeId: string) => void;
+  selectedEmployee: string | null;
   mode: "clockIn" | "clockOut";
   latitude: number;
   longitude: number;
@@ -22,6 +24,8 @@ const ClockModal: React.FC<ClockModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
+  onOptimisticUIUpdate,
+  selectedEmployee,
   mode,
   latitude,
   longitude,
@@ -59,16 +63,23 @@ const ClockModal: React.FC<ClockModalProps> = ({
   };
 
   const handleSubmit = () => {
-    if (image && locationValidationResult.isValid) {
-      onSubmit({
-        latitude,
-        longitude,
-        accuracy,
-        image,
-      });
-      resetImage();
-      setSelfieTaken(false); // Resetting selfieTaken state on successful submission
-      onClose();
+    if (image && locationValidationResult.isValid && selectedEmployee) {
+      try {
+        onOptimisticUIUpdate(selectedEmployee); // Optimistically update UI before submission
+        console.log(`Optimistically updating UI for employee ID: ${selectedEmployee}`);
+        onSubmit({
+          latitude,
+          longitude,
+          accuracy,
+          image,
+        });
+        console.log('Submitting clock-in/out data');
+        resetImage();
+        setSelfieTaken(false); // Resetting selfieTaken state on successful submission
+        onClose();
+      } catch (error) {
+        console.error("Failed to submit clock in/out data:", error);
+      }
     } else {
       console.error("Missing data for submission");
     }
