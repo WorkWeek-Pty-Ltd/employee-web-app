@@ -35,7 +35,6 @@ const ClockModal: React.FC<ClockModalProps> = ({
     resetImage,
   } = useCamera(isOpen);
 
-  // New state to track if a selfie has been taken
   const [selfieTaken, setSelfieTaken] = useState<boolean>(false);
 
   const [locationValidationResult, setLocationValidationResult] =
@@ -50,27 +49,25 @@ const ClockModal: React.FC<ClockModalProps> = ({
   }, [latitude, longitude, accuracy]);
 
   useEffect(() => {
-    // Reset the selfieTaken state when the modal is opened or closed
     setSelfieTaken(false);
   }, [isOpen]);
 
   const handleCloseModal = () => {
-    resetImage(); // Reset the captured image when closing the modal
-    onClose(); // Use the passed onClose to close the modal correctly
+    resetImage();
+    setSelfieTaken(false); // Resetting selfieTaken state when modal closes
+    onClose();
   };
 
   const handleSubmit = () => {
     if (image && locationValidationResult.isValid) {
-      console.log(
-        `Submitting ${mode} with geolocation data and accuracy of ${accuracy} meters.`
-      );
       onSubmit({
         latitude,
         longitude,
         accuracy,
         image,
       });
-      resetImage(); // Reset the image after successful submission
+      resetImage();
+      setSelfieTaken(false); // Resetting selfieTaken state on successful submission
       onClose();
     } else {
       console.error("Missing data for submission");
@@ -122,7 +119,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
               id="ok-btn"
               className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
               disabled={!image || !locationValidationResult.isValid}
-              onClick={() => handleSubmit()}
+              onClick={handleSubmit}
             >
               {`Confirm ${mode}`}
             </button>
