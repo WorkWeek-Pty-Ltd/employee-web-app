@@ -34,6 +34,9 @@ const ClockModal: React.FC<ClockModalProps> = ({
     videoRef,
   } = useCamera(isOpen);
 
+  // New state to track if a selfie has been taken
+  const [selfieTaken, setSelfieTaken] = useState<boolean>(false);
+
   const [locationValidationResult, setLocationValidationResult] =
     useState<ValidationResponse>({
       isValid: true,
@@ -44,6 +47,11 @@ const ClockModal: React.FC<ClockModalProps> = ({
     const validationResult = validateGeolocation(latitude, longitude, accuracy);
     setLocationValidationResult(validationResult);
   }, [latitude, longitude, accuracy]);
+
+  useEffect(() => {
+    // Reset the selfieTaken state when the modal is opened or closed
+    setSelfieTaken(false);
+  }, [isOpen]);
 
   const handleSubmit = () => {
     if (image && locationValidationResult.isValid) {
@@ -64,6 +72,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
 
   const captureImage = () => {
     originalCaptureImage();
+    setSelfieTaken(true);
   };
 
   if (!isOpen) return null;
@@ -80,13 +89,17 @@ const ClockModal: React.FC<ClockModalProps> = ({
             <p className="text-sm text-gray-500">
               Capture your selfie and location
             </p>
-            <video ref={videoRef} className="w-full" autoPlay></video>
-            <button
-              onClick={captureImage}
-              className="mt-3 bg-blue-500 text-white p-2 rounded"
-            >
-              {image ? "Retake Selfie" : "Capture Selfie"}
-            </button>
+            {!selfieTaken && (
+              <>
+                <video ref={videoRef} className="w-full" autoPlay></video>
+                <button
+                  onClick={captureImage}
+                  className="mt-3 bg-blue-500 text-white p-2 rounded"
+                >
+                  Capture Selfie
+                </button>
+              </>
+            )}
             {locationValidationResult.message && (
               <p className="text-red-500 mt-2">
                 {locationValidationResult.message}
