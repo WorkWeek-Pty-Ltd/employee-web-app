@@ -17,3 +17,19 @@ export interface ModeSwitchProps {
   mode: "clockIn" | "clockOut";
   setMode: (mode: "clockIn" | "clockOut") => void;
 }
+
+export interface ClockEvent {
+  employee_id: string;
+  site_id: string;
+  type: "in" | "out";
+  timestamptz: string;
+  latitude: number;
+  longitude: number;
+  accuracy_meters: number;
+  selfie_data_uri: string;
+}
+
+export interface ClockLists {
+  clockInList: Employee[];
+  clockOutList: Employee[];
+}

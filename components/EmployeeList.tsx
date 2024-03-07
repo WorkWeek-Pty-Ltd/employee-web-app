@@ -1,5 +1,5 @@
-import React from 'react';
-import Fuse from 'fuse.js';
+import React from "react";
+import Fuse from "fuse.js";
 
 interface Employee {
   employee_id: string;
@@ -7,15 +7,24 @@ interface Employee {
 }
 
 interface EmployeeListProps {
-  employees: Employee[];
+  employees?: Employee[];
   searchTerm: string;
-  onSelectEmployee: (employeeId: string) => void;
+  onSelectEmployee: (employee: Employee) => void;
 }
 
-const EmployeeList: React.FC<EmployeeListProps> = ({ employees, searchTerm, onSelectEmployee }) => {
-  const fuse = new Fuse(employees, { keys: ['full_name'] });
+const EmployeeList: React.FC<EmployeeListProps> = ({
+  employees,
+  searchTerm,
+  onSelectEmployee,
+}) => {
+  if (!employees) {
+    return null;
+  }
+  const fuse = new Fuse(employees, { keys: ["full_name"] });
   const results = fuse.search(searchTerm);
-  const employeeResults = searchTerm ? results.map(result => result.item) : employees;
+  const employeeResults = searchTerm
+    ? results.map((result) => result.item)
+    : employees;
 
   return (
     <ul>
@@ -25,7 +34,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, searchTerm, onSe
           className="cursor-pointer hover:bg-gray-100 p-2"
           onClick={() => {
             console.log(`Selecting employee with ID: ${employee.employee_id}`);
-            onSelectEmployee(employee.employee_id);
+            onSelectEmployee(employee);
           }}
         >
           {employee.full_name}
