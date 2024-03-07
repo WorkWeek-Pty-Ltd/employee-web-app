@@ -2,7 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Add responsive utilities */
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+/* Add responsive utilities and merge @layer base */
 @layer base {
   body {
     @apply text-sm;
@@ -11,15 +35,13 @@
     @apply text-lg;
   }
   h2 {
-    @apply text-md;
+    @apply text-base;
   }
   .container {
     @apply mx-auto px-4;
   }
-}
 
-@media (min-width: 768px) {
-  @layer base {
+  @media (min-width: 768px) {
     body {
       @apply text-base;
     }
@@ -33,12 +55,16 @@
       @apply max-w-xl;
     }
   }
-}
 
-@media (min-width: 1024px) {
-  @layer base {
+  @media (min-width: 1024px) {
     .container {
       @apply max-w-2xl;
     }
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }

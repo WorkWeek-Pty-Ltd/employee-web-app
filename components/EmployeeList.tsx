@@ -33,7 +33,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
           key={employee.employee_id}
           className="cursor-pointer hover:bg-gray-100 p-2"
           onClick={() => {
-            console.log(`Selecting employee with ID: ${employee.employee_id}`);
+            console.log(`Selecting employee: ${employee.full_name}`);
             onSelectEmployee(employee);
           }}
         >
