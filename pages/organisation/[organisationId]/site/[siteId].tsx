@@ -29,6 +29,7 @@ const SiteDetailPage = () => {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [isNotificationSuccess, setIsNotificationSuccess] = useState(true);
   const { latitude, longitude, accuracy } = useLocationAccuracy();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!organisationId || !siteId) {
@@ -39,6 +40,7 @@ const SiteDetailPage = () => {
       try {
         const response = await getClockLists(siteId as string);
         setClockLists(response);
+        setIsLoading(false);
       } catch (err: unknown) {
         if (typeof err === "object" && err !== null && "response" in err) {
           const error = err as { response: { data: any } };
@@ -47,6 +49,7 @@ const SiteDetailPage = () => {
           console.error("Failed to clock employee:", err);
         }
         setError("Failed to fetch data. Please try again later.");
+        setIsLoading(false);
       }
     };
     fetchEmployees();
@@ -155,6 +158,7 @@ const SiteDetailPage = () => {
             searchTerm={searchTerm}
             onSelectEmployee={handleOpenModal}
           />
+          {isLoading && <p>Loading...</p>}
         </>
       )}
       <ClockModal
