@@ -35,6 +35,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
     error: cameraError,
     videoRef,
     resetImage,
+    streamIsReady,
   } = useCamera(isOpen);
 
   const [selfieTaken, setSelfieTaken] = useState<boolean>(false);
@@ -58,7 +59,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
 
   const handleCloseModal = () => {
     resetImage();
-    setSelfieTaken(false); // Resetting selfieTaken state when modal closes
+    setSelfieTaken(false);
     onClose();
   };
 
@@ -66,6 +67,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
     if (image && locationValidationResult.isValid && selectedEmployee) {
       try {
         setSubmissionIsLoading(true);
+        // this await is required, I don't know why the linting says it is not
         await onSubmit({
           latitude,
           longitude,
@@ -75,7 +77,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
         setSubmissionIsLoading(false);
         console.log("Submitting clock-in/out data");
         resetImage();
-        setSelfieTaken(false); // Resetting selfieTaken state on successful submission
+        setSelfieTaken(false);
         onClose();
       } catch (error) {
         console.error("Failed to submit clock in/out data:", error);
@@ -110,6 +112,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
                 <button
                   onClick={captureImage}
                   className="mt-3 bg-blue-500 text-white p-2 rounded"
+                  disabled={!streamIsReady}
                 >
                   Capture Selfie
                 </button>

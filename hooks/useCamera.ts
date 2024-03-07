@@ -4,6 +4,7 @@ export const useCamera = (isOpen: boolean) => {
   const [image, setImage] = useState<string>("");
   const [error, setError] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [streamIsReady, setStreamIsReady] = useState(false);
 
   useEffect(() => {
     const obtainVideoStream = async () => {
@@ -17,6 +18,7 @@ export const useCamera = (isOpen: boolean) => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           console.log("Camera stream obtained successfully.");
+          setStreamIsReady(true);
         }
       } catch (err) {
         console.error("Error obtaining camera stream:", err);
@@ -79,5 +81,5 @@ export const useCamera = (isOpen: boolean) => {
     console.log("Image reset successfully.");
   };
 
-  return { image, captureImage, error, videoRef, resetImage };
+  return { image, captureImage, error, videoRef, resetImage, streamIsReady };
 };
