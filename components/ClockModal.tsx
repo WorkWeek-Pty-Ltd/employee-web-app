@@ -45,6 +45,8 @@ const ClockModal: React.FC<ClockModalProps> = ({
       message: "",
     });
 
+  const [submissionIsLoading, setSubmissionIsLoading] = useState(false);
+
   useEffect(() => {
     const validationResult = validateGeolocation(latitude, longitude, accuracy);
     setLocationValidationResult(validationResult);
@@ -60,18 +62,17 @@ const ClockModal: React.FC<ClockModalProps> = ({
     onClose();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (image && locationValidationResult.isValid && selectedEmployee) {
       try {
-        console.log(
-          `Optimistically updating UI for employee: ${selectedEmployee.full_name}`
-        );
-        onSubmit({
+        setSubmissionIsLoading(true);
+        await onSubmit({
           latitude,
           longitude,
           accuracy,
           image,
         });
+        setSubmissionIsLoading(false);
         console.log("Submitting clock-in/out data");
         resetImage();
         setSelfieTaken(false); // Resetting selfieTaken state on successful submission
@@ -128,7 +129,11 @@ const ClockModal: React.FC<ClockModalProps> = ({
             <button
               id="ok-btn"
               className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-              disabled={!image || !locationValidationResult.isValid}
+              disabled={
+                !image ||
+                !locationValidationResult.isValid ||
+                submissionIsLoading
+              }
               onClick={handleSubmit}
             >
               {`Confirm ${mode}`}
@@ -137,9 +142,11 @@ const ClockModal: React.FC<ClockModalProps> = ({
               id="close-btn"
               className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               onClick={handleCloseModal}
+              disabled={submissionIsLoading}
             >
               Close
             </button>
+            {submissionIsLoading && <p>{`${mode} in progress...`}</p>}
           </div>
         </div>
       </div>

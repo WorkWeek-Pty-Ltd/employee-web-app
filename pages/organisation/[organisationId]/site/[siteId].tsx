@@ -91,13 +91,6 @@ const SiteDetailPage = () => {
           ? await clockInEmployee(payload)
           : await clockOutEmployee(payload);
       console.log(`Employee successful ${mode}.`, response);
-
-      setIsModalOpen(false);
-      setError("");
-
-      // move the employee from this list to the other
-      // remove the employee from the current list
-      // and add them to the other list
       setClockLists((prev) => {
         if (!prev) {
           return null;
@@ -120,6 +113,12 @@ const SiteDetailPage = () => {
         }
         return updatedClockLists;
       });
+      setIsModalOpen(false);
+      setError("");
+
+      // move the employee from this list to the other
+      // remove the employee from the current list
+      // and add them to the other list
     } catch (err: unknown) {
       if (typeof err === "object" && err !== null && "response" in err) {
         const error = err as { response: { data: any } };
