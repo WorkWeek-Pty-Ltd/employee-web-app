@@ -26,7 +26,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
     ? results.map((result) => result.item)
     : employees;
 
-  return (
+  return employeeResults.length > 0 ? (
     <ul>
       {employeeResults.map((employee) => (
         <li
@@ -41,6 +41,8 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
         </li>
       ))}
     </ul>
+  ) : (
+    <p>No employees</p>
   );
 };
 
