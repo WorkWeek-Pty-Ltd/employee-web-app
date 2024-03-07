@@ -1,10 +1,6 @@
-// TODO make this a TS file
-
-import { ClockLists } from "@/types";
-
+import { ClockLists, ClockEvent } from "@/types";
 import axios from "axios";
 import validateGeolocation from "./validateGeolocation"; // Import the validateCoordinates utility
-import { ClockEvent } from "@/types";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const getSites = async (organisationId: string) => {
