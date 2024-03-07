@@ -13,15 +13,17 @@ import {
 import ModeSwitch from "../../../../components/ModeSwitch";
 import SiteHeader from "../../../../components/SiteHeader";
 import { useLocationAccuracy } from "../../../../hooks/useLocationAccuracy";
+import { Employee } from "@/types";
+import { ModeSwitchProps } from "@/types";
 
 const SiteDetailPage = () => {
   const router = useRouter();
   const { organisationId, siteId } = router.query;
-  const [employees, setEmployees] = useState([]);
-  const [allEmployees, setAllEmployees] = useState([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
-  const [mode, setMode] = useState("clockIn");
+  const [mode, setMode] = useState<ModeSwitchProps["mode"]>("clockIn");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
   const [showNotification, setShowNotification] = useState(false);
@@ -43,11 +45,13 @@ const SiteDetailPage = () => {
         console.log(`${mode} list fetched successfully.`, response);
         setEmployees(response);
         setAllEmployees(response);
-      } catch (err) {
-        console.error(
-          "Failed to fetch data:",
-          err.response ? err.response.data : err
-        );
+      } catch (err: unknown) {
+        if (typeof err === "object" && err !== null && "response" in err) {
+          const error = err as { response: { data: any } };
+          console.error("Failed to clock employee:", error.response.data);
+        } else {
+          console.error("Failed to clock employee:", err);
+        }
         setError("Failed to fetch data. Please try again later.");
       }
     };
@@ -96,11 +100,13 @@ const SiteDetailPage = () => {
       setEmployees((prev) =>
         prev.filter((emp) => emp.employee_id !== selectedEmployee)
       );
-    } catch (err) {
-      console.error(
-        "Failed to clock employee:",
-        err.response ? err.response.data : err
-      );
+    } catch (err: unknown) {
+      if (typeof err === "object" && err !== null && "response" in err) {
+        const error = err as { response: { data: any } };
+        console.error("Failed to clock employee:", error.response.data);
+      } else {
+        console.error("Failed to clock employee:", err);
+      }
       setEmployees(allEmployees);
       setError(`Failed to ${mode}. Please try again.`);
       setNotificationMessage("Failure");
@@ -145,10 +151,10 @@ const SiteDetailPage = () => {
           );
         }}
         selectedEmployee={selectedEmployee}
-        mode={mode as "clockIn" | "clockOut"}
-        latitude={latitude}
-        longitude={longitude}
-        accuracy={accuracy}
+        mode={mode as ModeSwitchProps["mode"]}
+        latitude={latitude || 0}
+        longitude={longitude || 0}
+        accuracy={accuracy || 0}
       />
       {showNotification && (
         <NotificationBanner

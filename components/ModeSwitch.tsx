@@ -1,19 +1,15 @@
-import React from 'react';
-
-interface ModeSwitchProps {
-  mode: 'clockIn' | 'clockOut';
-  setMode: (mode: 'clockIn' | 'clockOut') => void;
-}
+import React from "react";
+import { ModeSwitchProps } from "@/types";
 
 const ModeSwitch: React.FC<ModeSwitchProps> = ({ mode, setMode }) => {
   console.log(`Rendering ModeSwitch with current mode: ${mode}`);
 
-  const handleModeChange = (newMode: 'clockIn' | 'clockOut') => {
+  const handleModeChange = (newMode: "clockIn" | "clockOut") => {
     try {
       setMode(newMode);
       console.log(`Mode changed to: ${newMode}`);
     } catch (error) {
-      console.error('Error changing mode in ModeSwitch:', error);
+      console.error("Error changing mode in ModeSwitch:", error);
     }
   };
 
@@ -21,17 +17,17 @@ const ModeSwitch: React.FC<ModeSwitchProps> = ({ mode, setMode }) => {
     <div className="flex gap-4 mb-4">
       <button
         className={`px-4 py-2 ${
-          mode === 'clockIn' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+          mode === "clockIn" ? "bg-blue-500 text-white" : "bg-gray-200"
         }`}
-        onClick={() => handleModeChange('clockIn')}
+        onClick={() => handleModeChange("clockIn")}
       >
         Clock In
       </button>
       <button
         className={`px-4 py-2 ${
-          mode === 'clockOut' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+          mode === "clockOut" ? "bg-blue-500 text-white" : "bg-gray-200"
         }`}
-        onClick={() => handleModeChange('clockOut')}
+        onClick={() => handleModeChange("clockOut")}
       >
         Clock Out
       </button>
