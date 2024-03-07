@@ -10,7 +10,6 @@ import {
   clockOutEmployee,
 } from "../../../../utils/api";
 import ModeSwitch from "../../../../components/ModeSwitch";
-import SiteHeader from "../../../../components/SiteHeader";
 import { useLocationAccuracy } from "../../../../hooks/useLocationAccuracy";
 import { Employee, ModeSwitchProps, ClockEvent, ClockLists } from "@/types";
 
@@ -135,10 +134,12 @@ const SiteDetailPage = () => {
   };
 
   return (
-    <Layout pageTitle="Site Details">
+    <Layout
+      pageTitle="Site Details"
+      backRoute={`/organisation/${organisationId}`}
+    >
       {!isModalOpen && (
         <>
-          <SiteHeader organisationId={organisationId as string} />
           <ModeSwitch mode={mode} setMode={setMode} />
           <input
             type="search"

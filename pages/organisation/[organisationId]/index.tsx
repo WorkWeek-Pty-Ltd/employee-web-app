@@ -44,7 +44,6 @@ const SitesPage = () => {
   return (
     <Layout pageTitle="Sites">
       <div className="container mx-auto p-4">
-        <h1 className="text-center text-2xl font-bold mt-5">Sites</h1>
         <input
           type="text"
           placeholder="Search sites..."
