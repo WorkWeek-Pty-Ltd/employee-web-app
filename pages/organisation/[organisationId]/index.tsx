@@ -4,6 +4,10 @@ import Layout from "../../../components/Layout";
 import { getSites } from "../../../utils/api";
 import Fuse from "fuse.js";
 import { Site } from "../../../types";
+import {
+  MagnifyingGlassIcon,
+  ChevronRightIcon,
+} from "@heroicons/react/20/solid";
 
 const SitesPage = () => {
   const router = useRouter();
@@ -44,25 +48,33 @@ const SitesPage = () => {
   return (
     <Layout pageTitle="Sites">
       <div className="container mx-auto p-4">
-        <input
-          type="text"
-          placeholder="Search sites..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="border p-2 w-full mb-4"
-        />
+        <div className="bg-white px-4 py-2 rounded-lg flex items-center mb-4">
+          <span className="text-gray-500 mr-2">
+            <MagnifyingGlassIcon className="h-5 w-5" />
+          </span>
+          <input
+            type="text"
+            placeholder="Search sites"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-transparent placeholder-gray-500 text-gray-800 outline-none flex-1"
+          />
+        </div>
         {error && <p className="text-red-500">{error}</p>}
-        <ul className="mt-5">
-          {displayedSites.map((site: Site) => (
-            <li
+        <div>
+          {displayedSites.map((site) => (
+            <button
               key={site.id}
-              className="cursor-pointer hover:bg-gray-100 p-2"
               onClick={() => handleSiteClick(site.id)}
+              className="bg-white-100 text-left w-full p-4 mb-2 rounded-lg flex items-center justify-between hover:bg-gray-100 border-purple-500 border-2"
             >
-              {site.name}
-            </li>
+              <span className="text-gray-800 font-semibold">{site.name}</span>
+              <span className="text-gray-500">
+                <ChevronRightIcon className="h-5 w-5" />
+              </span>
+            </button>
           ))}
-        </ul>
+        </div>
       </div>
     </Layout>
   );
