@@ -1,15 +1,18 @@
 // TODO make this a TS file
 
+import { ClockLists } from "@/types";
+
 import axios from "axios";
 import validateGeolocation from "./validateGeolocation"; // Import the validateCoordinates utility
+import { ClockEvent } from "@/types";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-export const getSites = async (organisationId) => {
+export const getSites = async (organisationId: string) => {
   try {
     const response = await axios.post(`${apiUrl}/getSites`, { organisationId });
     console.log("Sites fetched successfully.");
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error(
       "Error fetching sites:",
       error.response ? error.response.data : error
@@ -18,36 +21,24 @@ export const getSites = async (organisationId) => {
   }
 };
 
-export const getClockInList = async (siteId) => {
+export const getClockLists = async (siteId: string) => {
   try {
-    const response = await axios.post(`${apiUrl}/getClockInList`, { siteId });
-    console.log("Clock in list fetched successfully.");
-    return response.data;
-  } catch (error) {
+    const response = await axios.post(`${apiUrl}/get-clock-lists`, { siteId });
+    console.log("Clock lists fetched successfully.");
+    return <ClockLists>response.data;
+  } catch (error: any) {
     console.error(
-      "Error fetching clock in list:",
+      "Error fetching clock lists:",
       error.response ? error.response.data : error
     );
     throw error;
   }
 };
 
-export const getClockOutList = async (siteId) => {
-  try {
-    const response = await axios.post(`${apiUrl}/getClockOutList`, { siteId });
-    console.log("Clock out list fetched successfully.");
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching clock out list:",
-      error.response ? error.response.data : error
-    );
-    throw error;
-  }
-};
-
-export const clockInEmployee = async (data) => {
-  if (!validateGeolocation(data.latitude, data.longitude, data.accuracy)) {
+export const clockInEmployee = async (data: ClockEvent) => {
+  if (
+    !validateGeolocation(data.latitude, data.longitude, data.accuracy_meters)
+  ) {
     console.error("Invalid location provided, aborting clock in operation.");
     return Promise.reject("Invalid location provided."); // Prevent clocking in with invalid coordinates
   }
@@ -56,7 +47,7 @@ export const clockInEmployee = async (data) => {
     const response = await axios.post(`${apiUrl}/insert-clock-event`, data);
     console.log("Employee clocked in successfully.");
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error(
       "Error clocking in employee:",
       error.response ? error.response.data : error
@@ -65,8 +56,10 @@ export const clockInEmployee = async (data) => {
   }
 };
 
-export const clockOutEmployee = async (data) => {
-  if (!validateGeolocation(data.latitude, data.longitude, data.accuracy)) {
+export const clockOutEmployee = async (data: ClockEvent) => {
+  if (
+    !validateGeolocation(data.latitude, data.longitude, data.accuracy_meters)
+  ) {
     console.error("Invalid location provided, aborting clock out operation.");
     return Promise.reject("Invalid location provided."); // Prevent clocking out with invalid coordinates
   }
@@ -75,7 +68,7 @@ export const clockOutEmployee = async (data) => {
     const response = await axios.post(`${apiUrl}/insert-clock-event`, data);
     console.log("Employee clocked out successfully.");
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error(
       "Error clocking out employee:",
       error.response ? error.response.data : error

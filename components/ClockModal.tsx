@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useCamera } from "../hooks/useCamera";
 import validateGeolocation from "../utils/validateGeolocation";
-import { ValidationResponse } from "../types";
+import { Employee, ValidationResponse } from "../types";
 
 interface ClockModalProps {
   isOpen: boolean;
@@ -12,8 +12,7 @@ interface ClockModalProps {
     accuracy: number;
     image: string;
   }) => void;
-  onOptimisticUIUpdate: (employeeId: string) => void;
-  selectedEmployee: string | null;
+  selectedEmployee: Employee | null;
   mode: "clockIn" | "clockOut";
   latitude: number;
   longitude: number;
@@ -24,7 +23,6 @@ const ClockModal: React.FC<ClockModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  onOptimisticUIUpdate,
   selectedEmployee,
   mode,
   latitude,
@@ -65,15 +63,16 @@ const ClockModal: React.FC<ClockModalProps> = ({
   const handleSubmit = () => {
     if (image && locationValidationResult.isValid && selectedEmployee) {
       try {
-        onOptimisticUIUpdate(selectedEmployee); // Optimistically update UI before submission
-        console.log(`Optimistically updating UI for employee ID: ${selectedEmployee}`);
+        console.log(
+          `Optimistically updating UI for employee: ${selectedEmployee.full_name}`
+        );
         onSubmit({
           latitude,
           longitude,
           accuracy,
           image,
         });
-        console.log('Submitting clock-in/out data');
+        console.log("Submitting clock-in/out data");
         resetImage();
         setSelfieTaken(false); // Resetting selfieTaken state on successful submission
         onClose();
@@ -99,7 +98,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
       <div className="relative p-5 border w-full max-w-sm mx-4 sm:max-w-md lg:max-w-lg bg-white shadow-lg rounded-md">
         <div className="mt-3 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">{`Please ${mode}`}</h3>
+          <h3 className="text-lg leading-6 font-medium text-gray-900">{`${mode} ${selectedEmployee?.full_name}`}</h3>
           <div className="mt-2">
             <p className="text-sm text-gray-500">
               Capture your selfie and location

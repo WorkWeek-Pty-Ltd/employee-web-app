@@ -5,27 +5,26 @@ import ClockModal from "../../../../components/ClockModal";
 import NotificationBanner from "../../../../components/NotificationBanner";
 import EmployeeList from "../../../../components/EmployeeList";
 import {
-  getClockInList,
-  getClockOutList,
+  getClockLists,
   clockInEmployee,
   clockOutEmployee,
 } from "../../../../utils/api";
 import ModeSwitch from "../../../../components/ModeSwitch";
 import SiteHeader from "../../../../components/SiteHeader";
 import { useLocationAccuracy } from "../../../../hooks/useLocationAccuracy";
-import { Employee } from "@/types";
-import { ModeSwitchProps } from "@/types";
+import { Employee, ModeSwitchProps, ClockEvent, ClockLists } from "@/types";
 
 const SiteDetailPage = () => {
   const router = useRouter();
   const { organisationId, siteId } = router.query;
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
+  const [clockLists, setClockLists] = useState<ClockLists | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [mode, setMode] = useState<ModeSwitchProps["mode"]>("clockIn");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [isNotificationSuccess, setIsNotificationSuccess] = useState(true);
@@ -38,13 +37,8 @@ const SiteDetailPage = () => {
     }
     const fetchEmployees = async () => {
       try {
-        const response =
-          mode === "clockIn"
-            ? await getClockInList(siteId)
-            : await getClockOutList(siteId);
-        console.log(`${mode} list fetched successfully.`, response);
-        setEmployees(response);
-        setAllEmployees(response);
+        const response = await getClockLists(siteId as string);
+        setClockLists(response);
       } catch (err: unknown) {
         if (typeof err === "object" && err !== null && "response" in err) {
           const error = err as { response: { data: any } };
@@ -56,10 +50,10 @@ const SiteDetailPage = () => {
       }
     };
     fetchEmployees();
-  }, [organisationId, siteId, mode]);
+  }, [organisationId, siteId]);
 
-  const handleOpenModal = (employeeId: string) => {
-    setSelectedEmployee(employeeId);
+  const handleOpenModal = (employee: Employee) => {
+    setSelectedEmployee(employee);
     setIsModalOpen(true);
   };
 
@@ -78,10 +72,10 @@ const SiteDetailPage = () => {
       return;
     }
     try {
-      const payload = {
+      const payload: ClockEvent = {
         type: mode === "clockIn" ? "in" : "out",
         site_id: siteId as string,
-        employee_id: selectedEmployee,
+        employee_id: selectedEmployee.employee_id,
         timestamptz: new Date().toISOString(),
         latitude: latitude as number,
         longitude: longitude as number,
@@ -91,15 +85,38 @@ const SiteDetailPage = () => {
 
       const response =
         mode === "clockIn"
-          ? clockInEmployee(payload)
-          : clockOutEmployee(payload);
+          ? await clockInEmployee(payload)
+          : await clockOutEmployee(payload);
       console.log(`Employee successful ${mode}.`, response);
+
       setIsModalOpen(false);
       setError("");
-      // Optimistically remove the employee from the list upon clock submission.
-      setEmployees((prev) =>
-        prev.filter((emp) => emp.employee_id !== selectedEmployee)
-      );
+
+      // move the employee from this list to the other
+      // remove the employee from the current list
+      // and add them to the other list
+      setClockLists((prev) => {
+        if (!prev) {
+          return null;
+        }
+        const updatedClockLists = { ...prev };
+        const updatedEmployee = updatedClockLists[`${mode}List`].find(
+          (employee: Employee) =>
+            employee.employee_id === selectedEmployee.employee_id
+        );
+        if (updatedEmployee) {
+          updatedClockLists[`${mode}List`] = updatedClockLists[
+            `${mode}List`
+          ].filter(
+            (employee: Employee) =>
+              employee.employee_id !== selectedEmployee.employee_id
+          );
+          updatedClockLists[
+            mode === "clockIn" ? "clockOutList" : "clockInList"
+          ].push(updatedEmployee);
+        }
+        return updatedClockLists;
+      });
     } catch (err: unknown) {
       if (typeof err === "object" && err !== null && "response" in err) {
         const error = err as { response: { data: any } };
@@ -107,7 +124,6 @@ const SiteDetailPage = () => {
       } else {
         console.error("Failed to clock employee:", err);
       }
-      setEmployees(allEmployees);
       setError(`Failed to ${mode}. Please try again.`);
       setNotificationMessage("Failure");
       setIsNotificationSuccess(false);
@@ -131,7 +147,11 @@ const SiteDetailPage = () => {
           />
           {error && <p className="text-red-500">{error}</p>}
           <EmployeeList
-            employees={employees}
+            employees={
+              mode === "clockIn"
+                ? clockLists?.clockInList
+                : clockLists?.clockOutList
+            }
             searchTerm={searchTerm}
             onSelectEmployee={handleOpenModal}
           />
@@ -141,15 +161,6 @@ const SiteDetailPage = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSubmit={(data) => handleClock(mode, { image: data.image })}
-        onOptimisticUIUpdate={(employeeId) => {
-          // Optimistically update the UI before the submission
-          console.log(
-            `Optimistically updating UI for employee ID: ${employeeId}`
-          );
-          setEmployees((prev) =>
-            prev.filter((emp) => emp.employee_id !== employeeId)
-          );
-        }}
         selectedEmployee={selectedEmployee}
         mode={mode as ModeSwitchProps["mode"]}
         latitude={latitude || 0}
