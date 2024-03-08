@@ -46,6 +46,10 @@ const SiteDetailPage = ({
   clockLists: initialClockLists,
   siteName: initialSiteName,
   error: initialError,
+}: {
+  clockLists: ClockLists | null;
+  siteName: string;
+  error: string | null;
 }) => {
   const router = useRouter();
   const { organisationId, siteId } = router.query;
