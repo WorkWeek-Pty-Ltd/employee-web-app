@@ -26,7 +26,7 @@ const Layout: React.FC<LayoutProps> = ({
         <img src="/workweek.svg" alt="Workweek" />
         <h1 style={{ marginTop: "10px" }}>{pageTitle}</h1>
       </header>
-      <main className="flex-grow container mt-4 mb-4">{children}</main>
+      <main className="container mx-auto mt-4 mb-4 px-4">{children}</main>
       <footer className="bg-light-grey text-black py-2 px-4 text-center text-xs sm:py-4 sm:px-6 sm:text-sm">
         © {new Date().getFullYear()} Workweek Employee Web App
       </footer>

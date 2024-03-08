@@ -142,8 +142,8 @@ const SiteDetailPage = () => {
       {!isModalOpen && (
         <>
           <ModeSwitch mode={mode} setMode={setMode} />
-          <div className="container mx-auto">
-            <div className="bg-white px-4 py-2 rounded-lg flex items-center mb-4 border-orange-300 border">
+          <div className="w-full flex">
+            <div className="bg-white px-4 py-2 rounded-lg flex items-center mb-4 border-orange-300 border w-full">
               <span className="text-gray-500 mr-2">
                 <MagnifyingGlassIcon className="h-5 w-5" />
               </span>
