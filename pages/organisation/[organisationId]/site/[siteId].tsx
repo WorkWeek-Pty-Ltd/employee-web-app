@@ -6,8 +6,7 @@ import NotificationBanner from "../../../../components/NotificationBanner";
 import EmployeeList from "../../../../components/EmployeeList";
 import {
   getClockListsAndSiteName,
-  clockInEmployee,
-  clockOutEmployee,
+  insertClockEvent,
 } from "../../../../utils/api";
 import ModeSwitch from "../../../../components/ModeSwitch";
 import { useLocationAccuracy } from "../../../../hooks/useLocationAccuracy";
@@ -15,12 +14,46 @@ import { Employee, ModeSwitchProps, ClockEvent, ClockLists } from "@/types";
 import styles from "../../../../styles/SearchAndList.module.css";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 
-const SiteDetailPage = () => {
+export const getServerSideProps = async (context: {
+  params: { siteId: string };
+}) => {
+  const { siteId } = context.params;
+
+  try {
+    const response = await getClockListsAndSiteName(siteId);
+
+    return {
+      props: {
+        clockLists: response.clockLists,
+        siteName: response.siteName,
+        error: null,
+      },
+    };
+  } catch (error) {
+    console.error("Failed to fetch site details:", error);
+
+    return {
+      props: {
+        clockLists: null,
+        siteName: "",
+        error: "Failed to fetch site details. Please try again later.",
+      },
+    };
+  }
+};
+
+const SiteDetailPage = ({
+  clockLists: initialClockLists,
+  siteName: initialSiteName,
+  error: initialError,
+}) => {
   const router = useRouter();
   const { organisationId, siteId } = router.query;
-  const [clockLists, setClockLists] = useState<ClockLists | null>(null);
+  const [clockLists, setClockLists] = useState<ClockLists | null>(
+    initialClockLists
+  );
   const [searchTerm, setSearchTerm] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError);
   const [mode, setMode] = useState<ModeSwitchProps["mode"]>("clockIn");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
@@ -30,33 +63,6 @@ const SiteDetailPage = () => {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [isNotificationSuccess, setIsNotificationSuccess] = useState(true);
   const { latitude, longitude, accuracy } = useLocationAccuracy();
-  const [isLoading, setIsLoading] = useState(true);
-  const [siteName, setSiteName] = useState("");
-
-  useEffect(() => {
-    if (!organisationId || !siteId) {
-      console.log("Missing organisation ID or site ID");
-      return;
-    }
-    const fetchEmployees = async () => {
-      try {
-        const response = await getClockListsAndSiteName(siteId as string);
-        setClockLists(response.clockLists);
-        setSiteName(response.siteName);
-        setIsLoading(false);
-      } catch (err: unknown) {
-        if (typeof err === "object" && err !== null && "response" in err) {
-          const error = err as { response: { data: any } };
-          console.error("Failed to clock employee:", error.response.data);
-        } else {
-          console.error("Failed to clock employee:", err);
-        }
-        setError("Failed to fetch data.");
-        setIsLoading(false);
-      }
-    };
-    fetchEmployees();
-  }, [organisationId, siteId]);
 
   const handleOpenModal = (employee: Employee) => {
     setSelectedEmployee(employee);
@@ -89,10 +95,7 @@ const SiteDetailPage = () => {
         selfie_data_uri: data.image,
       };
 
-      const response =
-        mode === "clockIn"
-          ? await clockInEmployee(payload)
-          : await clockOutEmployee(payload);
+      const response = await insertClockEvent(payload);
       console.log(`Employee successful ${mode}.`, response);
       setClockLists((prev) => {
         if (!prev) {
@@ -138,7 +141,10 @@ const SiteDetailPage = () => {
   };
 
   return (
-    <Layout pageTitle={siteName} backRoute={`/organisation/${organisationId}`}>
+    <Layout
+      pageTitle={initialSiteName}
+      backRoute={`/organisation/${organisationId}`}
+    >
       {!isModalOpen && (
         <>
           <ModeSwitch mode={mode} setMode={setMode} />
@@ -166,7 +172,6 @@ const SiteDetailPage = () => {
             searchTerm={searchTerm}
             onSelectEmployee={handleOpenModal}
           />
-          {isLoading && <p>Loading...</p>}
         </>
       )}
       <ClockModal
