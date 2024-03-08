@@ -5,7 +5,7 @@ import ClockModal from "../../../../components/ClockModal";
 import NotificationBanner from "../../../../components/NotificationBanner";
 import EmployeeList from "../../../../components/EmployeeList";
 import {
-  getClockLists,
+  getClockListsAndSiteName,
   clockInEmployee,
   clockOutEmployee,
 } from "../../../../utils/api";
@@ -29,6 +29,7 @@ const SiteDetailPage = () => {
   const [isNotificationSuccess, setIsNotificationSuccess] = useState(true);
   const { latitude, longitude, accuracy } = useLocationAccuracy();
   const [isLoading, setIsLoading] = useState(true);
+  const [siteName, setSiteName] = useState("");
 
   useEffect(() => {
     if (!organisationId || !siteId) {
@@ -37,8 +38,9 @@ const SiteDetailPage = () => {
     }
     const fetchEmployees = async () => {
       try {
-        const response = await getClockLists(siteId as string);
-        setClockLists(response);
+        const response = await getClockListsAndSiteName(siteId as string);
+        setClockLists(response.clockLists);
+        setSiteName(response.siteName);
         setIsLoading(false);
       } catch (err: unknown) {
         if (typeof err === "object" && err !== null && "response" in err) {
@@ -134,10 +136,7 @@ const SiteDetailPage = () => {
   };
 
   return (
-    <Layout
-      pageTitle="Site Details"
-      backRoute={`/organisation/${organisationId}`}
-    >
+    <Layout pageTitle={siteName} backRoute={`/organisation/${organisationId}`}>
       {!isModalOpen && (
         <>
           <ModeSwitch mode={mode} setMode={setMode} />
