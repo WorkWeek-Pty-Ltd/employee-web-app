@@ -47,7 +47,7 @@ const SiteDetailPage = () => {
         } else {
           console.error("Failed to clock employee:", err);
         }
-        setError("Failed to fetch data. Please try again later.");
+        setError("Failed to fetch data.");
         setIsLoading(false);
       }
     };
