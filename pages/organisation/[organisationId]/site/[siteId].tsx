@@ -12,6 +12,8 @@ import {
 import ModeSwitch from "../../../../components/ModeSwitch";
 import { useLocationAccuracy } from "../../../../hooks/useLocationAccuracy";
 import { Employee, ModeSwitchProps, ClockEvent, ClockLists } from "@/types";
+import styles from "../../../../styles/SearchAndList.module.css";
+import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 
 const SiteDetailPage = () => {
   const router = useRouter();
@@ -140,13 +142,20 @@ const SiteDetailPage = () => {
       {!isModalOpen && (
         <>
           <ModeSwitch mode={mode} setMode={setMode} />
-          <input
-            type="search"
-            className="border p-2 w-full mb-4"
-            placeholder="Search for an employee..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="container mx-auto">
+            <div className="bg-white px-4 py-2 rounded-lg flex items-center mb-4 border-orange-300 border">
+              <span className="text-gray-500 mr-2">
+                <MagnifyingGlassIcon className="h-5 w-5" />
+              </span>
+              <input
+                type="text"
+                placeholder="Search sites"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`${styles.searchBar} ${styles.searchInput}`}
+              />
+            </div>
+          </div>
           {error && <p className="text-red-500">{error}</p>}
           <EmployeeList
             employees={

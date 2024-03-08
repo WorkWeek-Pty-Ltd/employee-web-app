@@ -1,0 +1,36 @@
+/* SearchAndList.module.css */
+
+.searchBar {
+  background-color: white;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ff66006a; /* Replace with your orange-300 color */
+}
+
+.searchInput {
+  background-color: transparent;
+  margin-left: 0.5rem;
+  outline: none;
+  border: none;
+  flex: 1;
+}
+
+.listItem {
+  background-color: white;
+  width: 100%;
+  text-align: left;
+  text-indent: 1rem;
+  padding-left: 1rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0.5px solid #a955f740; /* Replace with your purple-300 color */
+}
+
+.listItem:hover {
+  background-color: #f3f4f6; /* Replace with your gray-100 color */
+}

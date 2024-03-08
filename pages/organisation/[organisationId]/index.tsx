@@ -8,6 +8,7 @@ import {
   MagnifyingGlassIcon,
   ChevronRightIcon,
 } from "@heroicons/react/20/solid";
+import styles from "../../../styles/SearchAndList.module.css";
 
 const SitesPage = () => {
   const router = useRouter();
@@ -59,7 +60,7 @@ const SitesPage = () => {
             placeholder="Search sites"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-transparent placeholder-gray-500 text-gray-800 outline-none flex-1"
+            className={`${styles.searchBar} ${styles.searchInput}`}
           />
         </div>
         {error && <p className="text-red-500">{error}</p>}
@@ -68,7 +69,7 @@ const SitesPage = () => {
             <button
               key={site.id}
               onClick={() => handleSiteClick(site.id)}
-              className="bg-white text-left w-full pl-4 p-2 mb-2 rounded-lg flex items-center justify-between hover:bg-gray-100 border-purple-300 border"
+              className={styles.listItem}
             >
               <span className="text-gray-800 font-semibold">{site.name}</span>
               <span className="text-gray-500">

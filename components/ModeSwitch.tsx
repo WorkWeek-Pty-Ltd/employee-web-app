@@ -14,22 +14,20 @@ const ModeSwitch: React.FC<ModeSwitchProps> = ({ mode, setMode }) => {
     }
   };
 
-  const categories = ["clockIn", "clockOut"];
-
   return (
     <Tab.Group>
-      <Tab.List className="flex gap-4 mb-4">
+      <Tab.List className="flex rounded-lg gap-0.5 mb-4">
         <Tab
-          className={`px-4 py-2 ${
-            mode === "clockIn" ? "bg-blue-500 text-white" : "bg-gray-200"
+          className={`w-full rounded-lg py-2 text-sm font-medium leading-5 transition-colors duration-150 ${
+            mode === "clockIn" ? "tabs text-white" : "bg-white text-black"
           }`}
           onClick={() => handleModeChange("clockIn")}
         >
           Clock In
         </Tab>
         <Tab
-          className={`px-4 py-2 ${
-            mode === "clockOut" ? "bg-blue-500 text-white" : "bg-gray-200"
+          className={`w-full rounded-lg py-2 text-sm font-medium leading-5 transition-colors duration-150 ${
+            mode === "clockOut" ? "tabs text-white" : "bg-white text-black"
           }`}
           onClick={() => handleModeChange("clockOut")}
         >
@@ -41,22 +39,3 @@ const ModeSwitch: React.FC<ModeSwitchProps> = ({ mode, setMode }) => {
 };
 
 export default ModeSwitch;
-
-// <div className="flex gap-4 mb-4">
-//   <button
-//     className={`px-4 py-2 ${
-//       mode === "clockIn" ? "bg-blue-500 text-white" : "bg-gray-200"
-//     }`}
-//     onClick={() => handleModeChange("clockIn")}
-//   >
-//     Clock In
-//   </button>
-//   <button
-//     className={`px-4 py-2 ${
-//       mode === "clockOut" ? "bg-blue-500 text-white" : "bg-gray-200"
-//     }`}
-//     onClick={() => handleModeChange("clockOut")}
-//   >
-//     Clock Out
-//   </button>
-// </div>

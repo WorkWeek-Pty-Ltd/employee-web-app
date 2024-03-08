@@ -1,5 +1,6 @@
 import React from "react";
 import Fuse from "fuse.js";
+import styles from "../styles/SearchAndList.module.css";
 
 interface Employee {
   employee_id: string;
@@ -31,7 +32,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({
       {employeeResults.map((employee) => (
         <li
           key={employee.employee_id}
-          className="cursor-pointer hover:bg-gray-100 p-2"
+          className={styles.listItem}
           onClick={() => {
             console.log(`Selecting employee: ${employee.full_name}`);
             onSelectEmployee(employee);
