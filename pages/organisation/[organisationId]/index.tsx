@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { GetServerSideProps } from "next";
 import Layout from "../../../components/Layout";
 import { getSitesAndOrgName } from "../../../utils/api";
 import Fuse from "fuse.js";
@@ -9,44 +8,77 @@ import {
   ChevronRightIcon,
 } from "@heroicons/react/20/solid";
 import styles from "../../../styles/SearchAndList.module.css";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
-const SitesPage = () => {
+interface SitesPageProps {
+  sites: Site[];
+  organisationName: string;
+  error: string | null;
+}
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { organisationId } = context.params || {};
+
+  if (!organisationId || typeof organisationId !== "string") {
+    return {
+      props: {
+        sites: [],
+        organisationName: "",
+        error: "Invalid organisation ID",
+      },
+    };
+  }
+
+  try {
+    const data = await getSitesAndOrgName(organisationId);
+    return {
+      props: {
+        sites: data.sites,
+        organisationName: data.organisation_name,
+        error: null,
+      },
+    };
+  } catch (error) {
+    console.error("Failed to fetch data for organisation:", error);
+    return {
+      props: {
+        sites: [],
+        organisationName: "",
+        error: "Failed to fetch sites.",
+      },
+    };
+  }
+};
+
+const SitesPage: React.FC<SitesPageProps> = ({
+  sites,
+  organisationName,
+  error,
+}) => {
   const router = useRouter();
-  const { organisationId } = router.query;
-  const [sites, setSites] = useState<Site[]>([]);
-  const [displayedSites, setDisplayedSites] = useState<Site[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [error, setError] = useState("");
-  const [organisationName, setOrganisationName] = useState("");
+  const [displayedSites, setDisplayedSites] = useState<Site[]>(sites);
 
-  useEffect(() => {
-    const orgId = typeof organisationId === "string" ? organisationId : "";
-    if (orgId) {
-      getSitesAndOrgName(orgId)
-        .then((response) => {
-          console.log("Sites fetched successfully.", response);
-          setSites(response.sites);
-          setDisplayedSites(response.sites);
-          setOrganisationName(response.organisation_name);
-        })
-        .catch((err) => {
-          console.error(
-            "Error fetching sites:",
-            err.response ? err.response.data : err
-          );
-          setError("Failed to fetch sites.");
-        });
-    }
-  }, [organisationId]);
-
-  useEffect(() => {
-    const fuse = new Fuse(sites, { keys: ["name"] });
-    const results = fuse.search(searchTerm).map(({ item }) => item);
-    setDisplayedSites(searchTerm ? results : sites);
-  }, [searchTerm, sites]);
   const handleSiteClick = (siteId: string) => {
-    router.push(`/organisation/${organisationId}/site/${siteId}`);
+    router.push(`/organisation/${router.query.organisationId}/site/${siteId}`);
   };
+
+  if (error) {
+    return (
+      <Layout pageTitle="Organisation not Found">
+        <div className="container mx-auto p-4 flex justify-center items-center h-screen">
+          <div className="text-center">
+            <h1 className="text-xl font-bold">An error occurred</h1>
+            <p className="text-gray-500">
+              The link you followed may be incorrect
+            </p>
+            <p className="mt-5 text-red-300">{error}</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout pageTitle={organisationName}>
@@ -59,11 +91,17 @@ const SitesPage = () => {
             type="text"
             placeholder="Search sites"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              const fuse = new Fuse(sites, { keys: ["name"] });
+              const results = fuse
+                .search(e.target.value)
+                .map(({ item }) => item);
+              setDisplayedSites(e.target.value ? results : sites);
+            }}
             className={`${styles.searchBar} ${styles.searchInput}`}
           />
         </div>
-        {error && <p className="text-red-500">{error}</p>}
         <div>
           {displayedSites.map((site) => (
             <button
