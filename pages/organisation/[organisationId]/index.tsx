@@ -45,7 +45,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       props: {
         sites: [],
         organisationName: "",
-        error: "Failed to fetch sites.",
+        error: "Failed to fetch sites. Please try again.",
       },
     };
   }

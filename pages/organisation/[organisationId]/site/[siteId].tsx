@@ -36,7 +36,7 @@ export const getServerSideProps = async (context: {
       props: {
         clockLists: null,
         siteName: "",
-        error: "Failed to fetch site details. Please try again later.",
+        error: "Failed to fetch site details. Please try again.",
       },
     };
   }
