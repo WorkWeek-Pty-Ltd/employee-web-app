@@ -20,27 +20,12 @@ export const useLocationAccuracy = () => {
 
     const onSuccess = (position: GeolocationPosition) => {
       console.log("Location tracking success:", position.coords);
-      setGeolocation((currentGeo) => {
-        // Only update state if the new accuracy is better (less) than the current or if no accuracy is set yet
-        if (
-          currentGeo.accuracy === null ||
-          position.coords.accuracy < currentGeo.accuracy
-        ) {
-          return {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: Math.round(position.coords.accuracy),
-            error: null,
-          };
-        }
-        return currentGeo;
+      setGeolocation({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        accuracy: Math.round(position.coords.accuracy),
+        error: null,
       });
-
-      // If accuracy is less than 500, stop tracking
-      if (Math.round(position.coords.accuracy) < 500) {
-        navigator.geolocation.clearWatch(watchId);
-        console.log("Desired accuracy achieved, stopping location tracking.");
-      }
     };
 
     const onError = (error: GeolocationPositionError) => {
@@ -64,7 +49,7 @@ export const useLocationAccuracy = () => {
     }
 
     return () => {
-      if (watchId !== undefined) {
+      if (watchId) {
         navigator.geolocation.clearWatch(watchId);
         console.log("Location tracking stopped.");
       }
