@@ -1,16 +1,18 @@
-import { ClockLists, ClockEvent } from "@/types";
+import { ClockLists, ClockEvent, OrgSitesInfo } from "@/types";
 import axios from "axios";
 import validateGeolocation from "./validateGeolocation"; // Import the validateCoordinates utility
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-export const getSites = async (organisationId: string) => {
+export const getSitesAndOrgName = async (organisationId: string) => {
   try {
-    const response = await axios.post(`${apiUrl}/getSites`, { organisationId });
-    console.log("Sites fetched successfully.");
-    return response.data;
+    const response = await axios.post(`${apiUrl}/get-sites-and-org-name`, {
+      organisationId,
+    });
+    console.log("Sites and organisation name fetched successfully.");
+    return <OrgSitesInfo>response.data;
   } catch (error: any) {
     console.error(
-      "Error fetching sites:",
+      "Error fetching sites and organisation name:",
       error.response ? error.response.data : error
     );
     throw error;

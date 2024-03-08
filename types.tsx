@@ -33,3 +33,8 @@ export interface ClockLists {
   clockInList: Employee[];
   clockOutList: Employee[];
 }
+
+export interface OrgSitesInfo {
+  organisation_name: string;
+  sites: Array<{ id: string; name: string }>;
+}

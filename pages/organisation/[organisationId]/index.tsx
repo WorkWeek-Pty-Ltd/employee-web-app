@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Layout from "../../../components/Layout";
-import { getSites } from "../../../utils/api";
+import { getSitesAndOrgName } from "../../../utils/api";
 import Fuse from "fuse.js";
 import { Site } from "../../../types";
 import {
@@ -16,22 +16,24 @@ const SitesPage = () => {
   const [displayedSites, setDisplayedSites] = useState<Site[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
+  const [organisationName, setOrganisationName] = useState("");
 
   useEffect(() => {
     const orgId = typeof organisationId === "string" ? organisationId : "";
     if (orgId) {
-      getSites(orgId)
+      getSitesAndOrgName(orgId)
         .then((response) => {
           console.log("Sites fetched successfully.", response);
-          setSites(response);
-          setDisplayedSites(response);
+          setSites(response.sites);
+          setDisplayedSites(response.sites);
+          setOrganisationName(response.organisation_name);
         })
         .catch((err) => {
           console.error(
             "Error fetching sites:",
             err.response ? err.response.data : err
           );
-          setError("Failed to fetch sites. Please try again later.");
+          setError("Failed to fetch sites.");
         });
     }
   }, [organisationId]);
@@ -46,7 +48,7 @@ const SitesPage = () => {
   };
 
   return (
-    <Layout pageTitle="Sites">
+    <Layout pageTitle={organisationName}>
       <div className="container mx-auto px-4 pb-4">
         <div className="bg-white px-4 py-2 rounded-lg flex items-center mb-4 border-orange-300 border">
           <span className="text-gray-500 mr-2">
