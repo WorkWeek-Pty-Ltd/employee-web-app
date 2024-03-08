@@ -66,7 +66,7 @@ const SitesPage = () => {
             <button
               key={site.id}
               onClick={() => handleSiteClick(site.id)}
-              className="bg-white text-left w-full p-4 mb-2 rounded-lg flex items-center justify-between hover:bg-gray-100 border-purple-300 border"
+              className="bg-white text-left w-full pl-4 p-2 mb-2 rounded-lg flex items-center justify-between hover:bg-gray-100 border-purple-300 border"
             >
               <span className="text-gray-800 font-semibold">{site.name}</span>
               <span className="text-gray-500">
