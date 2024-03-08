@@ -36,7 +36,7 @@ export const useLocationAccuracy = () => {
     if ("geolocation" in navigator) {
       watchId = navigator.geolocation.watchPosition(onSuccess, onError, {
         enableHighAccuracy: true,
-        timeout: 5000,
+        timeout: 300000,
         maximumAge: 0,
       });
       console.log("Location tracking initiated.");
