@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import { useCamera } from "../hooks/useCamera";
 import validateGeolocation from "../utils/validateGeolocation";
 import { Employee, ValidationResponse } from "../types";
@@ -39,13 +40,8 @@ const ClockModal: React.FC<ClockModalProps> = ({
   } = useCamera(isOpen);
 
   const [selfieTaken, setSelfieTaken] = useState<boolean>(false);
-
   const [locationValidationResult, setLocationValidationResult] =
-    useState<ValidationResponse>({
-      isValid: true,
-      message: "",
-    });
-
+    useState<ValidationResponse>({ isValid: true, message: "" });
   const [submissionIsLoading, setSubmissionIsLoading] = useState(false);
 
   useEffect(() => {
@@ -67,7 +63,6 @@ const ClockModal: React.FC<ClockModalProps> = ({
     if (image && locationValidationResult.isValid && selectedEmployee) {
       try {
         setSubmissionIsLoading(true);
-        // this await is required, I don't know why the linting says it is not
         await onSubmit({
           latitude,
           longitude,
@@ -94,69 +89,102 @@ const ClockModal: React.FC<ClockModalProps> = ({
 
   if (!isOpen) return null;
 
-  // TODO use the fancy new next image thing
-  // "Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-elementeslint@next/next/no-img-element"
-
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-      <div className="relative p-5 border w-full max-w-sm mx-4 sm:max-w-md lg:max-w-lg bg-white shadow-lg rounded-md">
-        <div className="mt-3 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">{`${
-            mode == "clockIn" ? "Clock In" : "Clock Out"
-          } "${selectedEmployee?.full_name}"`}</h3>
-          <div className="mt-2">
-            <p className="text-sm pb-2 text-gray-500">
-              Capture your selfie and location
-            </p>
-            {!selfieTaken && (
-              <>
-                <video ref={videoRef} className="w-full" autoPlay></video>
-                <button
-                  onClick={captureImage}
-                  className="p-2 mt-3 px-4 py-2 bg-blue-400 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                  disabled={!streamIsReady}
-                >
-                  Capture Selfie
-                </button>
-              </>
-            )}
-            {selfieTaken && !locationValidationResult.isValid && (
-              <p className="text-red-500 mt-2">
-                {locationValidationResult.message}
-              </p>
-            )}
-            {selfieTaken && (
-              <img src={image} alt="Selfie preview" className="mt-4 mx-auto" />
-            )}
-          </div>
-          {cameraError && <p className="text-red-500">{cameraError}</p>}
-          <div className="items-center px-4 py-3">
-            {selfieTaken && (
-              <button
-                id="ok-btn"
-                className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                disabled={
-                  !selfieTaken ||
-                  !locationValidationResult.isValid ||
-                  submissionIsLoading
-                }
-                onClick={handleSubmit}
-              >
-                {`Confirm ${mode == "clockIn" ? "Clock In" : "Clock Out"}`}
-              </button>
-            )}
-            <button
-              id="close-btn"
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              onClick={handleCloseModal}
-              disabled={submissionIsLoading}
-            >
-              Cancel
-            </button>
-            {submissionIsLoading && <p>{`${mode} in progress...`}</p>}
+    <div>
+      <Transition show={isOpen}>
+        <Dialog
+          open={isOpen}
+          onClose={handleCloseModal}
+          className="fixed inset-0 z-40 overflow-y-auto"
+        >
+          {
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+              <div className="relative p-5 border w-full max-w-sm mx-4 sm:max-w-md lg:max-w-lg bg-white shadow-lg rounded-md">
+                <div className="mt-3 text-center">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">{`${
+                    mode == "clockIn" ? "Clock In" : "Clock Out"
+                  } "${selectedEmployee?.full_name}"`}</h3>
+                  <div className="mt-2">
+                    <p className="text-sm pb-2 text-gray-500">
+                      Capture your selfie and location
+                    </p>
+                    {!selfieTaken && (
+                      <>
+                        <video
+                          ref={videoRef}
+                          className="w-full"
+                          autoPlay
+                        ></video>
+                        <button
+                          onClick={captureImage}
+                          className="p-2 mt-3 px-4 py-2 bg-blue-400 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                          disabled={!streamIsReady}
+                        >
+                          Capture Selfie
+                        </button>
+                      </>
+                    )}
+                    {selfieTaken && !locationValidationResult.isValid && (
+                      <p className="text-red-500 mt-2">
+                        {locationValidationResult.message}
+                      </p>
+                    )}
+                    {selfieTaken && (
+                      <img
+                        src={image}
+                        alt="Selfie preview"
+                        className="mt-4 mx-auto"
+                      />
+                    )}
+                  </div>
+                  {cameraError && <p className="text-red-500">{cameraError}</p>}
+                  <div className="items-center px-4 py-3">
+                    {selfieTaken && (
+                      <button
+                        id="ok-btn"
+                        className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                        disabled={
+                          !selfieTaken ||
+                          !locationValidationResult.isValid ||
+                          submissionIsLoading
+                        }
+                        onClick={handleSubmit}
+                      >
+                        {`Confirm ${
+                          mode == "clockIn" ? "Clock In" : "Clock Out"
+                        }`}
+                      </button>
+                    )}
+                    <button
+                      id="close-btn"
+                      className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      onClick={handleCloseModal}
+                      disabled={submissionIsLoading}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </Dialog>
+      </Transition>
+      <Transition
+        show={submissionIsLoading}
+        enter="transition-opacity duration-10"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-opacity duration-10"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+          <div className="text-white text-lg font-medium">
+            {`${mode == "clockIn" ? "Clock In" : "Clock Out"} in progress...`}
           </div>
         </div>
-      </div>
+      </Transition>
     </div>
   );
 };
