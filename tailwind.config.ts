@@ -1,16 +1,19 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  purge: [
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-    "./styles/**/*.{css}",
-  ],
+  // Remove or comment out the 'purge' field as 'content' replaces it in Tailwind CSS v3.0
+  // purge: [
+  //   "./pages/**/*.{js,ts,jsx,tsx}",
+  //   "./components/**/*.{js,ts,jsx,tsx}",
+  //   "./styles/**/*.{css}",
+  // ],
   mode: "jit",
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    // Including styles directory with the corrected glob pattern
+    "./styles/**/*.css", // Corrected glob pattern for CSS files
   ],
   theme: {
     extend: {
