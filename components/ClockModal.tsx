@@ -170,15 +170,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
           }
         </Dialog>
       </Transition>
-      <Transition
-        show={submissionIsLoading}
-        enter="transition-opacity duration-10"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leave="transition-opacity duration-10"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-      >
+      <Transition show={submissionIsLoading}>
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
           <div className="text-white text-lg font-medium">
             {`${mode == "clockIn" ? "Clock In" : "Clock Out"} in progress...`}
