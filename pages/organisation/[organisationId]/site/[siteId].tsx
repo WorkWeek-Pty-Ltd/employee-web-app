@@ -136,7 +136,11 @@ const SiteDetailPage = ({
       } else {
         console.error("Failed to clock employee:", err);
       }
-      setError(`Failed to ${mode}. Please try again.`);
+      setError(
+        `Failed to ${
+          mode == "clockIn" ? "Clock In" : "Clock Out"
+        }. Please try again.`
+      );
       setNotificationMessage("Failure");
       setIsNotificationSuccess(false);
       setShowNotification(true);
@@ -166,7 +170,7 @@ const SiteDetailPage = ({
               />
             </div>
           </div>
-          {error && <p className="text-red-500">{error}</p>}
+          {error && <p className="text-red-500 text-center pb-2">{error}</p>}
           <EmployeeList
             employees={
               mode === "clockIn"

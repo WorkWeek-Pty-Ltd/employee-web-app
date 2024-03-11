@@ -18,7 +18,7 @@ const ModeSwitch: React.FC<ModeSwitchProps> = ({ mode, setMode }) => {
     <Tab.Group>
       <Tab.List className="flex rounded-lg gap-0.5 mb-4">
         <Tab
-          className={`w-full rounded-lg py-2 text-sm font-medium leading-5 transition-colors duration-150 ${
+          className={`w-full rounded-lg py-2 text-sm font-medium leading-5 transition-colors duration-5 ${
             mode === "clockIn" ? "tabs text-white" : "bg-white text-black"
           }`}
           onClick={() => handleModeChange("clockIn")}
@@ -26,7 +26,7 @@ const ModeSwitch: React.FC<ModeSwitchProps> = ({ mode, setMode }) => {
           Clock In
         </Tab>
         <Tab
-          className={`w-full rounded-lg py-2 text-sm font-medium leading-5 transition-colors duration-150 ${
+          className={`w-full rounded-lg py-2 text-sm font-medium leading-5 transition-colors duration-5 ${
             mode === "clockOut" ? "tabs text-white" : "bg-white text-black"
           }`}
           onClick={() => handleModeChange("clockOut")}

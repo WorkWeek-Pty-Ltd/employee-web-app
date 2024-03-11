@@ -101,9 +101,11 @@ const ClockModal: React.FC<ClockModalProps> = ({
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
       <div className="relative p-5 border w-full max-w-sm mx-4 sm:max-w-md lg:max-w-lg bg-white shadow-lg rounded-md">
         <div className="mt-3 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">{`${mode} ${selectedEmployee?.full_name}`}</h3>
+          <h3 className="text-lg leading-6 font-medium text-gray-900">{`${
+            mode == "clockIn" ? "Clock In" : "Clock Out"
+          } "${selectedEmployee?.full_name}"`}</h3>
           <div className="mt-2">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm pb-2 text-gray-500">
               Capture your selfie and location
             </p>
             {!selfieTaken && (
@@ -111,43 +113,45 @@ const ClockModal: React.FC<ClockModalProps> = ({
                 <video ref={videoRef} className="w-full" autoPlay></video>
                 <button
                   onClick={captureImage}
-                  className="mt-3 bg-blue-500 text-white p-2 rounded"
+                  className="p-2 mt-3 px-4 py-2 bg-blue-400 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   disabled={!streamIsReady}
                 >
                   Capture Selfie
                 </button>
               </>
             )}
-            {locationValidationResult.message && (
+            {selfieTaken && !locationValidationResult.isValid && (
               <p className="text-red-500 mt-2">
                 {locationValidationResult.message}
               </p>
             )}
-            {image && (
+            {selfieTaken && (
               <img src={image} alt="Selfie preview" className="mt-4 mx-auto" />
             )}
           </div>
           {cameraError && <p className="text-red-500">{cameraError}</p>}
           <div className="items-center px-4 py-3">
-            <button
-              id="ok-btn"
-              className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-              disabled={
-                !image ||
-                !locationValidationResult.isValid ||
-                submissionIsLoading
-              }
-              onClick={handleSubmit}
-            >
-              {`Confirm ${mode}`}
-            </button>
+            {selfieTaken && (
+              <button
+                id="ok-btn"
+                className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                disabled={
+                  !selfieTaken ||
+                  !locationValidationResult.isValid ||
+                  submissionIsLoading
+                }
+                onClick={handleSubmit}
+              >
+                {`Confirm ${mode == "clockIn" ? "Clock In" : "Clock Out"}`}
+              </button>
+            )}
             <button
               id="close-btn"
               className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               onClick={handleCloseModal}
               disabled={submissionIsLoading}
             >
-              Close
+              Cancel
             </button>
             {submissionIsLoading && <p>{`${mode} in progress...`}</p>}
           </div>
