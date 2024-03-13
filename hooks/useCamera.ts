@@ -17,6 +17,7 @@ export const useCamera = (isOpen: boolean) => {
         });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          // these next 3 lines are necessary to ensure the video is played on iOS devices
           videoRef.current.autoplay = true; // Set autoplay programmatically
           videoRef.current.playsInline = true; // Ensure inline playback
           videoRef.current.muted = true; // Mute the video to allow autoplay on most browsers
