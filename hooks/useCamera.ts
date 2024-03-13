@@ -17,6 +17,9 @@ export const useCamera = (isOpen: boolean) => {
         });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          videoRef.current.autoplay = true; // Set autoplay programmatically
+          videoRef.current.playsInline = true; // Ensure inline playback
+          videoRef.current.muted = true; // Mute the video to allow autoplay on most browsers
           console.log("Camera stream obtained successfully.");
           setStreamIsReady(true);
         }
