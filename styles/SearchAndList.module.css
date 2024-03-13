@@ -5,7 +5,7 @@
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
-  border: 1px solid #ff66006a; /* Replace with your orange-300 color */
+  border: 1px solid #ff66006a; /* Light mode border color, replace with your orange-300 color */
 }
 
 .searchInput {
@@ -21,16 +21,36 @@
   width: 100%;
   text-align: left;
   text-indent: 1rem;
-  padding-left: 1rem;
   padding: 0.5rem;
   margin-bottom: 0.5rem;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 0.5px solid #a955f740; /* Replace with your purple-300 color */
+  border: 0.5px solid #a955f740; /* Light mode border color, replace with your purple-300 color */
 }
 
 .listItem:hover {
-  background-color: #f3f4f6; /* Replace with your gray-100 color */
+  background-color: #f3f4f6; /* Hover background color, replace with your gray-100 color */
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .searchBar {
+    background-color: #333; /* Dark mode background color */
+  }
+
+  .searchInput {
+    color: #fff; /* Text color for dark mode */
+  }
+
+  .listItem {
+    background-color: #222; /* Dark mode background color */
+    color: #fff; /* Text color for dark mode */
+    border: 0.5px solid #7b68ee; /* Dark mode border color, consider a lighter purple for contrast */
+  }
+
+  .listItem:hover {
+    background-color: #2d2f34; /* Hover background color for dark mode, choose a slightly lighter shade than the item background */
+  }
 }

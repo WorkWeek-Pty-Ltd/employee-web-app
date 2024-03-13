@@ -11,6 +11,7 @@ import listStyles from "../../../styles/SearchAndList.module.css";
 import spinnerStyles from "../../../styles/Spinner.module.css";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { userPrefersDarkMode } from "../../../hooks/userPrefersDarkMode";
 
 interface SitesPageProps {
   sites: Site[];
@@ -61,6 +62,7 @@ const SitesPage: React.FC<SitesPageProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [displayedSites, setDisplayedSites] = useState<Site[]>(sites);
   const [isLoading, setIsLoading] = useState(false);
+  const prefersDarkMode = userPrefersDarkMode();
 
   const handleSiteClick = async (siteId: string) => {
     if (isLoading) return; // Prevent further clicks if already loading
@@ -116,10 +118,20 @@ const SitesPage: React.FC<SitesPageProps> = ({
               key={site.id}
               onClick={() => handleSiteClick(site.id)}
               className={listStyles.listItem}
-              disabled={isLoading} // Disable the button when loading
+              disabled={isLoading}
             >
-              <span className="text-gray-800 font-semibold">{site.name}</span>
-              <span className="text-gray-500">
+              <span
+                className={
+                  prefersDarkMode
+                    ? "text-white font-semibold"
+                    : "text-gray-800 font-semibold"
+                }
+              >
+                {site.name}
+              </span>
+              <span
+                className={prefersDarkMode ? "text-gray-300" : "text-gray-500"}
+              >
                 {isLoading ? (
                   <div className={spinnerStyles.spinner}></div>
                 ) : (
