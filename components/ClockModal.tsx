@@ -3,6 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { useCamera } from "../hooks/useCamera";
 import validateGeolocation from "../utils/validateGeolocation";
 import { Employee, ValidationResponse } from "../types";
+import spinnerStyles from "../styles/Spinner.module.css";
 
 interface ClockModalProps {
   isOpen: boolean;
@@ -172,6 +173,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
       </Transition>
       <Transition show={submissionIsLoading}>
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+          <div className={spinnerStyles.spinner}></div>
           <div className="text-white text-lg font-medium">
             {`${mode == "clockIn" ? "Clock In" : "Clock Out"} in progress...`}
           </div>

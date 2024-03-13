@@ -9,7 +9,8 @@ import {
   MagnifyingGlassIcon,
   ChevronRightIcon,
 } from "@heroicons/react/20/solid";
-import styles from "../../../styles/SearchAndList.module.css";
+import listStyles from "../../../styles/SearchAndList.module.css";
+import spinnerStyles from "../../../styles/Spinner.module.css";
 import { useState } from "react";
 import { useRouter } from "next/router";
 
@@ -61,9 +62,16 @@ const SitesPage: React.FC<SitesPageProps> = ({
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [displayedSites, setDisplayedSites] = useState<Site[]>(sites);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSiteClick = (siteId: string) => {
-    router.push(`/organisation/${router.query.organisationId}/site/${siteId}`);
+  const handleSiteClick = async (siteId: string) => {
+    if (isLoading) return; // Prevent further clicks if already loading
+
+    setIsLoading(true); // Set loading state to true
+    await router.push(
+      `/organisation/${router.query.organisationId}/site/${siteId}`
+    );
+    // Consider setting isLoading back to false if needed
   };
 
   if (error) {
@@ -101,7 +109,7 @@ const SitesPage: React.FC<SitesPageProps> = ({
                 .map(({ item }) => item);
               setDisplayedSites(e.target.value ? results : sites);
             }}
-            className={`${styles.searchBar} ${styles.searchInput}`}
+            className={`${listStyles.searchBar} ${listStyles.searchInput}`}
           />
         </div>
         <div>
@@ -109,11 +117,16 @@ const SitesPage: React.FC<SitesPageProps> = ({
             <button
               key={site.id}
               onClick={() => handleSiteClick(site.id)}
-              className={styles.listItem}
+              className={listStyles.listItem}
+              disabled={isLoading} // Disable the button when loading
             >
               <span className="text-gray-800 font-semibold">{site.name}</span>
               <span className="text-gray-500">
-                <ChevronRightIcon className="h-5 w-5" />
+                {isLoading ? (
+                  <div className={spinnerStyles.spinner}></div>
+                ) : (
+                  <ChevronRightIcon className="h-5 w-5" />
+                )}
               </span>
             </button>
           ))}
