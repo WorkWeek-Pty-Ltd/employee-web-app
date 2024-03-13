@@ -1,5 +1,3 @@
-// TODO: after the user clicks on a site, they currently can still click another site and the page will change to the new site. This is not the desired behaviour. The user should be redirected to the site page immediately or be shown a loading screen instead of being able to click multiple sites. I think this is becasue of SSR
-
 import { GetServerSideProps } from "next";
 import Layout from "../../../components/Layout";
 import { getSitesAndOrgName } from "../../../utils/api";
