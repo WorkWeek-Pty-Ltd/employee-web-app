@@ -11,9 +11,34 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --background-start-rgb: 13, 17, 23; /* Slightly lighter than black for depth */
+    --background-end-rgb: 23, 27, 33; /* A gradient end that's not pure black */
+    --border-color-rgb: 100, 100, 100; /* For better visibility of borders */
   }
+
+  body,
+  button,
+  input,
+  textarea {
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--background-start-rgb)),
+      rgb(var(--background-end-rgb))
+    );
+  }
+
+  .container,
+  .bg-white {
+    background-color: rgb(
+      var(--background-start-rgb)
+    ); /* Ensure containers stand out */
+    border-color: rgb(
+      var(--border-color-rgb)
+    ); /* Adjust border colors for visibility */
+  }
+
+  /* Additional styling for buttons, links, etc., to ensure they are readable and accessible */
 }
 
 body {
