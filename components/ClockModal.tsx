@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import { CameraIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
 import { useCamera } from "../hooks/useCamera";
 import validateGeolocation from "../utils/validateGeolocation";
 import { Employee, ValidationResponse } from "../types";
@@ -38,6 +39,7 @@ const ClockModal: React.FC<ClockModalProps> = ({
     videoRef,
     resetImage,
     streamIsReady,
+    toggleCamera, // This function should toggle between front and back cameras
   } = useCamera(isOpen);
 
   const [selfieTaken, setSelfieTaken] = useState<boolean>(false);
@@ -51,7 +53,9 @@ const ClockModal: React.FC<ClockModalProps> = ({
   }, [latitude, longitude, accuracy]);
 
   useEffect(() => {
-    setSelfieTaken(false);
+    if (!isOpen) {
+      setSelfieTaken(false);
+    }
   }, [isOpen]);
 
   const handleCloseModal = () => {
@@ -89,6 +93,22 @@ const ClockModal: React.FC<ClockModalProps> = ({
   };
 
   if (!isOpen) return null;
+
+  const handleToggleCamera = () => {
+    toggleCamera(); // Assuming toggleCamera switches between 'front' and 'back'
+  };
+
+  const handleRetakeSelfie = () => {
+    resetImage();
+    setSelfieTaken(false);
+  };
+
+  // Adjustments for button styling to handle two-thirds and one-third widths
+  const cancelButtonStyle =
+    "mt-3 w-2/3 inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 dark:bg-red-700 text-base font-medium text-white hover:bg-red-700 dark:hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-red-600";
+  const cameraButtonStyle =
+    "ml-2 w-1/3 inline-flex justify-center items-center rounded-md border border-transparent shadow-sm bg-blue-500 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300";
+
   return (
     <div>
       <Transition show={isOpen}>
@@ -154,14 +174,31 @@ const ClockModal: React.FC<ClockModalProps> = ({
                       }`}
                     </button>
                   )}
-                  <button
-                    id="close-btn"
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 dark:bg-red-700 text-base font-medium text-white hover:bg-red-700 dark:hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-red-600"
-                    onClick={handleCloseModal}
-                    disabled={submissionIsLoading}
-                  >
-                    Cancel
-                  </button>
+                  <div className="items-center px-4 py-3 flex">
+                    {/* Adjusted Cancel button with two-thirds width */}
+                    <button
+                      id="close-btn"
+                      className={cancelButtonStyle}
+                      onClick={onClose}
+                      disabled={submissionIsLoading}
+                    >
+                      Cancel
+                    </button>
+                    {/* New Camera toggle/retake button with one-third width and conditional icon */}
+                    <button
+                      id="camera-btn"
+                      className="ml-2 w-1/3 inline-flex justify-center items-center rounded-md border border-transparent shadow-sm bg-blue-500 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      onClick={
+                        selfieTaken ? handleRetakeSelfie : handleToggleCamera
+                      }
+                    >
+                      {selfieTaken ? (
+                        <ArrowPathIcon className="h-5 w-5" />
+                      ) : (
+                        <CameraIcon className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

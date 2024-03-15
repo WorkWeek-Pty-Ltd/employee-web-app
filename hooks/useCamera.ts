@@ -5,15 +5,18 @@ export const useCamera = (isOpen: boolean) => {
   const [error, setError] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [streamIsReady, setStreamIsReady] = useState(false);
+  const [cameraFacing, setCameraFacing] = useState<"user" | "environment">(
+    "user"
+  );
 
-  useEffect(() => {
-    const obtainVideoStream = async () => {
+  const obtainVideoStream = useCallback(
+    async (cameraFacingMode: "user" | "environment") => {
       if (!isOpen) {
         return;
       }
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
+          video: { facingMode: cameraFacingMode },
         });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -30,30 +33,27 @@ export const useCamera = (isOpen: boolean) => {
           "Error obtaining camera stream. Please ensure camera access is allowed."
         );
       }
-    };
+    },
+    [isOpen]
+  );
 
-    // We're using a type assertion here to treat `navigator` as `any`. This is because TypeScript, based on our current configuration, assumes that `navigator.mediaDevices` and `navigator.mediaDevices.getUserMedia` are always defined. However, these APIs might not be available in all browsers or environments where our code could run. By treating `navigator` as `any`, we're effectively disabling type checking for properties of `navigator`, which allows us to check if `mediaDevices` and `getUserMedia` are defined without TypeScript warnings.
-    if (
-      (navigator as any).mediaDevices &&
-      (navigator as any).mediaDevices.getUserMedia
-    ) {
-      obtainVideoStream();
-    } else {
-      console.error("Camera access is not supported by this browser.");
-      setError("Camera access is not supported by this browser.");
-    }
-
-    const currentVideoRef = videoRef.current;
-
+  useEffect(() => {
+    obtainVideoStream(cameraFacing);
     return () => {
-      if (currentVideoRef && currentVideoRef.srcObject) {
-        const tracks = (currentVideoRef.srcObject as MediaStream).getTracks();
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
         tracks.forEach((track) => track.stop());
         console.log("Camera stream stopped.");
       }
-      resetImage(); // Reset the image after the modal is closed or the post request is completed
+      resetImage();
     };
-  }, [isOpen]);
+  }, [isOpen, cameraFacing, obtainVideoStream]);
+
+  const toggleCamera = useCallback(() => {
+    setCameraFacing((prevFacing) =>
+      prevFacing === "user" ? "environment" : "user"
+    );
+  }, []);
 
   const captureImage = useCallback(() => {
     if (videoRef.current) {
@@ -80,10 +80,20 @@ export const useCamera = (isOpen: boolean) => {
     }
   }, [videoRef]);
 
-  const resetImage = () => {
+  const resetImage = useCallback(() => {
     setImage("");
+    setError("");
+    obtainVideoStream(cameraFacing);
     console.log("Image reset successfully.");
-  };
+  }, []);
 
-  return { image, captureImage, error, videoRef, resetImage, streamIsReady };
+  return {
+    image,
+    captureImage,
+    error,
+    videoRef,
+    resetImage,
+    streamIsReady,
+    toggleCamera,
+  };
 };
