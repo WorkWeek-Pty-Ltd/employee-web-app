@@ -24,11 +24,14 @@ export const getSitesAndOrgName = async (organisationId: string) => {
   }
 };
 
-export const getClockListsAndSiteName = async (siteId: string) => {
+export const getClockListsAndSiteName = async (
+  siteId: string,
+  organisationId: string
+) => {
   try {
     const response = await axios.post(
       `${apiUrl}/get-clock-lists-and-site-name`,
-      { siteId }
+      { siteId, organisationId }
     );
     console.log("Clock lists fetched successfully.");
     return <ClockListsAndSiteName>response.data;

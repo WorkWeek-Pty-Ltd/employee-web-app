@@ -15,12 +15,12 @@ import styles from "../../../../styles/SearchAndList.module.css";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 
 export const getServerSideProps = async (context: {
-  params: { siteId: string };
+  params: { siteId: string; organisationId: string };
 }) => {
-  const { siteId } = context.params;
+  const { siteId, organisationId } = context.params;
 
   try {
-    const response = await getClockListsAndSiteName(siteId);
+    const response = await getClockListsAndSiteName(siteId, organisationId);
 
     return {
       props: {
